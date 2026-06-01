@@ -622,6 +622,8 @@ input, button, select, textarea { font-family: var(--font); }
   transition: all 0.2s ease;
   -webkit-tap-highlight-color: transparent;
   animation: save-bounce 1.6s ease infinite;
+  position: relative;
+  z-index: 200;
 }
 .bnav-save-btn:active { transform: scale(0.9) !important; animation: none; }
 
@@ -809,7 +811,6 @@ input, button, select, textarea { font-family: var(--font); }
   min-height: calc(100vh - var(--header-h));
   max-width: 100%;
   box-sizing: border-box;
-  overflow-x: hidden;
 }
 
 .main-section { display: none; }

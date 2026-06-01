@@ -257,12 +257,9 @@ function updateSaveButton() {
     btn.classList.toggle('has-changes', hasPending);
     btn.textContent = hasPending ? `Guardar semana ${currentWeekNum} ●` : `Guardar semana ${currentWeekNum}`;
   }
-  // Globo azul mobile
-  const wrap = document.getElementById('bnav-save-wrap');
-  if (wrap) wrap.style.display = hasPending ? 'flex' : 'none';
-  // Ocultar barra sticky vieja en mobile
-  const bar = document.getElementById('mobile-save-bar');
-  if (bar) bar.style.display = 'none';
+  // Botón guardado flotante fixed (mobile)
+  const floatBtn = document.getElementById('btn-save-mobile');
+  if (floatBtn) floatBtn.style.display = hasPending ? 'flex' : 'none';
 }
 
 async function saveWeek() {
