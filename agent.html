@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>RE/MAX — Mi Seguimiento 2026</title>
   <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/plan-estrategico.css">
 </head>
 <body>
 
@@ -372,6 +373,150 @@
   </svg>
 </button>
 
+<!-- ══ SECCIÓN PLAN ESTRATÉGICO (oculta hasta que broker la habilite) ══ -->
+<section id="section-plan" class="main-section" style="display:none">
+
+  <div class="section-header">
+    <div>
+      <div class="section-title">Mi plan estratégico 2026</div>
+      <div class="section-subtitle">Definí tus metas, calculá lo que necesitás y seguí tu progreso</div>
+    </div>
+  </div>
+
+  <div class="pe-summary-grid">
+    <div class="pe-summary-card">
+      <div class="pe-summary-label">Meta de bolsillo</div>
+      <div class="pe-summary-value" id="pe-meta-total">U$S 0</div>
+      <div class="pe-summary-sub">vivir + negocio + objetivos</div>
+    </div>
+    <div class="pe-summary-card highlight">
+      <div class="pe-summary-label">Comisiones brutas necesarias</div>
+      <div class="pe-summary-value" id="pe-comisiones">U$S 0</div>
+      <div class="pe-summary-sub">para llegar a tu meta</div>
+    </div>
+    <div class="pe-summary-card">
+      <div class="pe-summary-label">Transacciones a cerrar</div>
+      <div class="pe-summary-value" id="pe-tx-nec">0</div>
+      <div class="pe-summary-sub">en el año</div>
+    </div>
+    <div class="pe-summary-card">
+      <div class="pe-summary-label">Reservas necesarias</div>
+      <div class="pe-summary-value" id="pe-reservas-nec">0</div>
+      <div class="pe-summary-sub">para lograr las transacciones</div>
+    </div>
+  </div>
+
+  <div class="pe-card">
+    <div class="pe-card-title">🗓️ Lo que tenés que hacer cada semana</div>
+    <div class="pe-kpi-row">
+      <div class="pe-kpi-chip"><div class="pe-kpi-num" id="pe-kpi-reuniones">—</div><div class="pe-kpi-lbl">Reuniones verdes<br>por semana</div></div>
+      <div class="pe-kpi-chip"><div class="pe-kpi-num" id="pe-kpi-procesos">—</div><div class="pe-kpi-lbl">Procesos de venta<br>por semana</div></div>
+      <div class="pe-kpi-chip"><div class="pe-kpi-num" id="pe-kpi-captaciones">—</div><div class="pe-kpi-lbl">Captaciones<br>por mes</div></div>
+      <div class="pe-kpi-chip"><div class="pe-kpi-num" id="pe-kpi-aperturas">—</div><div class="pe-kpi-lbl">Aperturas de venta<br>por mes</div></div>
+    </div>
+  </div>
+
+  <div class="pe-card">
+    <div class="pe-card-title">⚙️ Parámetros del plan</div>
+    <div class="pe-config-grid">
+      <div class="pe-config-item"><label for="pe-tc">Tipo de cambio ARS / U$S</label><input type="number" id="pe-tc" placeholder="1200" min="1"></div>
+      <div class="pe-config-item"><label for="pe-tx-prom">Comisión promedio por tx (U$S)</label><input type="number" id="pe-tx-prom" placeholder="2600" min="0"></div>
+      <div class="pe-config-item"><label for="pe-ratio-res">Ratio reservas / transacción</label><input type="number" id="pe-ratio-res" placeholder="1.2" min="1" step="0.05"></div>
+    </div>
+  </div>
+
+  <div class="pe-grid-2">
+    <div class="pe-card">
+      <div class="pe-card-title">🏠 Gastos personales ($ / mes)</div>
+      <table class="pe-form-table">
+        <tr><td>Vivienda</td><td><input type="number" id="pe-g-vivienda" placeholder="0" min="0"></td></tr>
+        <tr><td>Comida</td><td><input type="number" id="pe-g-comida" placeholder="0" min="0"></td></tr>
+        <tr><td>Servicios para el hogar</td><td><input type="number" id="pe-g-servicios" placeholder="0" min="0"></td></tr>
+        <tr><td>Impuestos</td><td><input type="number" id="pe-g-impuestos" placeholder="0" min="0"></td></tr>
+        <tr><td>Colegios / Universidades</td><td><input type="number" id="pe-g-colegios" placeholder="0" min="0"></td></tr>
+        <tr><td>Vestimenta</td><td><input type="number" id="pe-g-vestimenta" placeholder="0" min="0"></td></tr>
+        <tr><td>Obra social / Tarjeta</td><td><input type="number" id="pe-g-obraSocial" placeholder="0" min="0"></td></tr>
+        <tr><td>Extras</td><td><input type="number" id="pe-g-extras" placeholder="0" min="0"></td></tr>
+        <tr class="pe-total-row"><td>Total para vivir</td><td style="text-align:right" id="pe-total-gastos">0 $/mes</td></tr>
+      </table>
+    </div>
+    <div class="pe-card">
+      <div class="pe-card-title">💼 Gastos operativos ($ / mes)</div>
+      <table class="pe-form-table">
+        <tr><td>Monotributo / Autónomo</td><td><input type="number" id="pe-o-monotributo" placeholder="0" min="0"></td></tr>
+        <tr><td>Fee Administrativo</td><td><input type="number" id="pe-o-feeAdmin" placeholder="0" min="0"></td></tr>
+        <tr><td>Mainstreet (÷12)</td><td><input type="number" id="pe-o-mainstreet" placeholder="0" min="0"></td></tr>
+        <tr><td>Transporte</td><td><input type="number" id="pe-o-transporte" placeholder="0" min="0"></td></tr>
+        <tr><td>Seguro y Patente</td><td><input type="number" id="pe-o-seguro" placeholder="0" min="0"></td></tr>
+        <tr><td>Celular</td><td><input type="number" id="pe-o-celular" placeholder="0" min="0"></td></tr>
+        <tr><td>Obra Social (negocio)</td><td><input type="number" id="pe-o-obraSocialNeg" placeholder="0" min="0"></td></tr>
+        <tr><td>Inversiones (redes, regalos…)</td><td><input type="number" id="pe-o-inversiones" placeholder="0" min="0"></td></tr>
+        <tr class="pe-total-row"><td>Total para el negocio</td><td style="text-align:right" id="pe-total-operativos">0 $/mes</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="pe-card">
+    <div class="pe-card-title">🏆 Mis objetivos personales (U$S)</div>
+    <div id="pe-objetivos-list">
+      <div class="pe-obj-row"><div class="pe-obj-num">1</div><input type="text" id="pe-obj-nombre-0" placeholder="Ej: Cambiar el auto"><input type="number" id="pe-obj-monto-0" placeholder="U$S" min="0"></div>
+      <div class="pe-obj-row"><div class="pe-obj-num">2</div><input type="text" id="pe-obj-nombre-1" placeholder="Ej: Viaje"><input type="number" id="pe-obj-monto-1" placeholder="U$S" min="0"></div>
+      <div class="pe-obj-row"><div class="pe-obj-num">3</div><input type="text" id="pe-obj-nombre-2" placeholder="Ej: Inversión"><input type="number" id="pe-obj-monto-2" placeholder="U$S" min="0"></div>
+      <div class="pe-obj-row"><div class="pe-obj-num">4</div><input type="text" id="pe-obj-nombre-3" placeholder="Ej: Gym"><input type="number" id="pe-obj-monto-3" placeholder="U$S" min="0"></div>
+      <div class="pe-obj-row"><div class="pe-obj-num">5</div><input type="text" id="pe-obj-nombre-4" placeholder="Objetivo extra"><input type="number" id="pe-obj-monto-4" placeholder="U$S" min="0"></div>
+    </div>
+    <div class="pe-obj-total">Total objetivos: <strong id="pe-total-objetivos">U$S 0</strong></div>
+  </div>
+
+  <div class="pe-card">
+    <div class="pe-card-title">📊 Cuánto necesito en total</div>
+    <div class="pe-anual-row"><span class="pe-anual-label">Para vivir (anual)</span><span class="pe-anual-value" id="pe-vivir-anual">U$S 0</span></div>
+    <div class="pe-anual-row"><span class="pe-anual-label">Para el negocio (anual)</span><span class="pe-anual-value" id="pe-negocio-anual">U$S 0</span></div>
+    <div class="pe-anual-row"><span class="pe-anual-label">Mis objetivos personales</span><span class="pe-anual-value" id="pe-obj-anual">U$S 0</span></div>
+    <div class="pe-anual-row pe-total"><span class="pe-anual-label">Total de bolsillo necesario</span><span class="pe-anual-value" id="pe-meta-total-2">U$S 0</span></div>
+  </div>
+
+  <div class="pe-card">
+    <div class="pe-card-title">📈 Mi progreso actual</div>
+    <div class="pe-progress-section">
+      <div class="pe-progress-item">
+        <div class="pe-progress-header"><span>Captaciones realizadas</span><strong id="pe-prog-captaciones">0 / 0</strong></div>
+        <div class="pe-progress-track"><div class="pe-progress-fill green" id="pe-bar-captaciones" style="width:0%"></div></div>
+      </div>
+      <div class="pe-progress-item">
+        <div class="pe-progress-header"><span>Reservas / Puntas logradas</span><strong id="pe-prog-reservas">0 / 0</strong></div>
+        <div class="pe-progress-track"><div class="pe-progress-fill" id="pe-bar-reservas" style="width:0%"></div></div>
+      </div>
+    </div>
+    <div style="overflow-x:auto;margin-top:8px">
+      <table class="pe-track-table">
+        <thead><tr><th style="text-align:left">Métrica</th><th>Ene</th><th>Feb</th><th>Mar</th><th>Abr</th><th>May</th><th>Jun</th><th>Jul</th><th>Ago</th><th>Sep</th><th>Oct</th><th>Nov</th><th>Dic</th></tr></thead>
+        <tbody>
+          <tr><td>Captaciones</td><td><input type="number" id="pe-track-cap-0" min="0" value="0"></td><td><input type="number" id="pe-track-cap-1" min="0" value="0"></td><td><input type="number" id="pe-track-cap-2" min="0" value="0"></td><td><input type="number" id="pe-track-cap-3" min="0" value="0"></td><td><input type="number" id="pe-track-cap-4" min="0" value="0"></td><td><input type="number" id="pe-track-cap-5" min="0" value="0"></td><td><input type="number" id="pe-track-cap-6" min="0" value="0"></td><td><input type="number" id="pe-track-cap-7" min="0" value="0"></td><td><input type="number" id="pe-track-cap-8" min="0" value="0"></td><td><input type="number" id="pe-track-cap-9" min="0" value="0"></td><td><input type="number" id="pe-track-cap-10" min="0" value="0"></td><td><input type="number" id="pe-track-cap-11" min="0" value="0"></td></tr>
+          <tr><td>Reservas</td><td><input type="number" id="pe-track-res-0" min="0" value="0"></td><td><input type="number" id="pe-track-res-1" min="0" value="0"></td><td><input type="number" id="pe-track-res-2" min="0" value="0"></td><td><input type="number" id="pe-track-res-3" min="0" value="0"></td><td><input type="number" id="pe-track-res-4" min="0" value="0"></td><td><input type="number" id="pe-track-res-5" min="0" value="0"></td><td><input type="number" id="pe-track-res-6" min="0" value="0"></td><td><input type="number" id="pe-track-res-7" min="0" value="0"></td><td><input type="number" id="pe-track-res-8" min="0" value="0"></td><td><input type="number" id="pe-track-res-9" min="0" value="0"></td><td><input type="number" id="pe-track-res-10" min="0" value="0"></td><td><input type="number" id="pe-track-res-11" min="0" value="0"></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="pe-card">
+    <div class="pe-card-title">📅 Distribución mensual estimada</div>
+    <div style="overflow-x:auto"><table class="pe-dist-table"><thead><tr><th>Mes</th><th style="text-align:center">%</th><th>Peso</th><th style="text-align:right">U$S estimado</th></tr></thead><tbody id="pe-dist-tbody"></tbody></table></div>
+    <div class="pe-trim-grid">
+      <div class="pe-trim-card"><div class="pe-trim-label">1er trimestre</div><div class="pe-trim-pct">15,6%</div><div class="pe-trim-usd" id="pe-trim-1">—</div></div>
+      <div class="pe-trim-card"><div class="pe-trim-label">2do trimestre</div><div class="pe-trim-pct">21,6%</div><div class="pe-trim-usd" id="pe-trim-2">—</div></div>
+      <div class="pe-trim-card"><div class="pe-trim-label">3er trimestre</div><div class="pe-trim-pct">27,0%</div><div class="pe-trim-usd" id="pe-trim-3">—</div></div>
+      <div class="pe-trim-card"><div class="pe-trim-label">4to trimestre</div><div class="pe-trim-pct">35,8%</div><div class="pe-trim-usd" id="pe-trim-4">—</div></div>
+    </div>
+  </div>
+
+  <div class="pe-save-bar">
+    <button class="btn-pe-save" id="pe-btn-save">💾 Guardar plan</button>
+  </div>
+
+</section>
+<!-- ══ FIN SECCIÓN PLAN ══ -->
+
 <!-- Bottom Navigation (mobile) -->
 <nav class="bottom-nav">
   <div class="bottom-nav-items">
@@ -426,6 +571,7 @@
 <script src="js/db.js"></script>
 <script src="js/auth.js"></script>
 <script src="js/charts.js"></script>
+<script src="js/plan-estrategico.js"></script>
 <script src="js/parser.js"></script>
 <script src="js/voice.js"></script>
 <script src="js/mobile.js"></script>

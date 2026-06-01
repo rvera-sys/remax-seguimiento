@@ -85,6 +85,28 @@ function showSection(section) {
   if (section === 'mensual') loadMonthlyView();
   if (section === 'anual')   loadAnualView();
   if (section === 'tablero') loadTableroView();
+  if (section === 'plan' && typeof initPlanEstrategico === 'function') {
+    // Patch render para campos extra
+    if (!window._pePatchApplied) {
+      window._pePatchApplied = true;
+      const orig = window.peRender;
+      window.peRender = function(plan, calc) {
+        orig(plan, calc);
+        const mt2 = document.getElementById('pe-meta-total-2');
+        if (mt2) mt2.textContent = 'U$S ' + Math.round(calc.metaTotal).toLocaleString('es-AR');
+        (calc.trim || []).forEach((t, i) => {
+          const el = document.getElementById('pe-trim-' + (i+1));
+          if (el) el.textContent = 'U$S ' + Math.round(t.usd).toLocaleString('es-AR');
+        });
+        // Actualizar metas en chips KPI del seguimiento
+        getPlanTargets(currentUser.uid).then(t => {
+          planTargets = t;
+          renderWeekTotals();
+        });
+      };
+    }
+    initPlanEstrategico(currentUser.uid);
+  }
 }
 
 // ── Vista semanal ─────────────────────────────────────────────────────────────
