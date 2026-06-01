@@ -15,6 +15,7 @@
       <span class="logo-re">RE/</span><span class="logo-max">MAX</span>
     </div>
   </div>
+  <button class="hamburger-btn" id="hamburger-btn" title="Menú">☰</button>
   <div class="header-divider"></div>
   <span class="header-app-name">Seguimiento Comercial 2026</span>
   <div class="header-spacer"></div>
@@ -49,6 +50,7 @@
       </div>
     </div>
   </nav>
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
 
   <!-- MAIN -->
   <main class="main-content">
@@ -292,6 +294,30 @@
       document.getElementById('tab-hint').innerHTML = hints[btn.dataset.tab] || '';
     });
   });
+</script>
+
+<script>
+  (function() {
+    var sidebar = document.querySelector('.sidebar');
+    var overlay = document.getElementById('sidebar-overlay');
+    var hamburger = document.getElementById('hamburger-btn');
+    if (hamburger && sidebar && overlay) {
+      hamburger.addEventListener('click', function() {
+        sidebar.classList.toggle('open');
+        overlay.classList.toggle('active');
+      });
+      overlay.addEventListener('click', function() {
+        sidebar.classList.remove('open');
+        overlay.classList.remove('active');
+      });
+      document.querySelectorAll('.nav-item').forEach(function(item) {
+        item.addEventListener('click', function() {
+          sidebar.classList.remove('open');
+          overlay.classList.remove('active');
+        });
+      });
+    }
+  })();
 </script>
 </body>
 </html>

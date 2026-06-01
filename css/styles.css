@@ -429,6 +429,33 @@ input, button, select, textarea { font-family: var(--font); }
 }
 .btn-logout:hover { background: rgba(255,255,255,.2); }
 
+/* Hamburger menu (mobile) */
+.hamburger-btn {
+  display: none;
+  width: 36px; height: 36px;
+  background: rgba(255,255,255,.15);
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  color: var(--white);
+  font-size: 1.2rem;
+  transition: background var(--transition);
+}
+.hamburger-btn:hover { background: rgba(255,255,255,.25); }
+
+/* Sidebar overlay (mobile) */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.5);
+  z-index: 89;
+}
+.sidebar-overlay.active { display: block; }
+
 /* ── Sidebar ─────────────────────────────────────────────────────── */
 .sidebar {
   position: fixed;
@@ -1361,10 +1388,92 @@ tr:hover td { background: var(--blue-light); }
 }
 
 @media (max-width: 640px) {
-  .sidebar { display: none; }
-  .main-content { margin-left: 0; padding: 16px; }
-  .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+  .hamburger-btn { display: flex; }
+
+  .sidebar {
+    display: block;
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+    z-index: 91;
+    width: 260px;
+    box-shadow: 4px 0 16px rgba(0,0,0,.15);
+  }
+  .sidebar.open { transform: translateX(0); }
+
+  .main-content { margin-left: 0; padding: 14px; }
+
+  .app-header { padding: 0 12px; }
+  .header-divider { margin: 0 8px; }
+  .header-app-name { display: none; }
+
+  .header-user .user-info { display: none; }
+  .user-avatar { width: 30px; height: 30px; font-size: 0.65rem; }
+
+  .kpi-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .kpi-card { padding: 14px 12px 10px; }
+  .kpi-value { font-size: 1.6rem; }
+
   .agent-cards-grid { grid-template-columns: 1fr; }
-  .metric-input { width: 40px; font-size: 0.8rem; }
-  .login-card { padding: 28px 20px; }
+  .agent-metrics-mini { grid-template-columns: repeat(2, 1fr); }
+
+  .table-wrapper { margin: 0 -14px; border-radius: 0; border-left: none; border-right: none; }
+  th, td { padding: 6px 4px; font-size: 0.75rem; }
+  th:first-child, td:first-child { padding-left: 10px; }
+  .metric-input { width: 34px; height: 30px; font-size: 0.75rem; }
+
+  .week-nav { padding: 10px 12px; gap: 8px; }
+  .week-label-main { font-size: 0.85rem; }
+  .week-range-sub { font-size: 0.7rem; }
+  .week-nav-btn { width: 30px; height: 30px; font-size: 0.9rem; }
+
+  .week-kpi-row { gap: 6px; }
+  .week-kpi-chip { padding: 4px 8px; font-size: 0.7rem; }
+  .week-kpi-num { font-size: 0.85rem; }
+
+  .metric-tabs { width: 100%; }
+  .metric-tab { flex: 1; text-align: center; padding: 7px 8px; font-size: 0.72rem; }
+
+  .voice-panel { flex-direction: column; text-align: center; padding: 20px 16px; gap: 14px; }
+  .mic-btn { width: 60px; height: 60px; }
+  .voice-title { font-size: 0.95rem; }
+  .voice-desc { font-size: 0.75rem; }
+  .voice-desc br { display: none; }
+
+  .login-card { padding: 24px 18px; }
+  .login-card .tab-btn { font-size: 0.8rem; padding: 8px 4px; }
+  .logo-brand { font-size: 1.5rem; }
+
+  .section-header { flex-direction: column; align-items: stretch; }
+  .section-title { font-size: 1.1rem; }
+
+  .save-bar { flex-direction: column; }
+  .btn-save { width: 100%; min-width: unset; }
+
+  .modal { margin: 0; border-radius: var(--radius); }
+  .modal-header { padding: 14px 16px; }
+  .modal-body { padding: 16px; }
+  .modal-overlay { padding: 16px 12px; }
+
+  .grid-2, .grid-3 { grid-template-columns: 1fr; gap: 12px; }
+
+  .chart-container-sm { height: 180px; }
+  .chart-container-md { height: 220px; }
+  .chart-container-lg { height: 260px; }
+
+  .card-header { flex-direction: column; align-items: stretch; gap: 8px; }
+  .card-body { padding: 14px; }
+
+  .action-buttons .btn { flex: 1; }
+
+  .pending-item { flex-direction: column; align-items: stretch; gap: 8px; }
+  .pending-actions { justify-content: flex-end; }
+}
+
+@media (max-width: 400px) {
+  .kpi-grid { gap: 8px; }
+  .kpi-value { font-size: 1.3rem; }
+  .main-content { padding: 10px; }
+  .voice-panel { padding: 16px 12px; }
+  th, td { padding: 4px 3px; font-size: 0.7rem; }
+  .metric-input { width: 30px; height: 26px; font-size: 0.7rem; }
 }
