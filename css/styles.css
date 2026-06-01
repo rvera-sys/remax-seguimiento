@@ -112,13 +112,10 @@ input, button, select, textarea { font-family: var(--font); }
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 64px; height: 64px;
-  background: var(--blue-dark);
-  border-radius: 50%;
+  width: 64px; height: 76px;
   margin-bottom: 12px;
+  filter: drop-shadow(0 4px 10px rgba(0,0,0,.25));
 }
-
-.logo-balloon svg { width: 36px; height: 36px; }
 
 .logo-brand {
   font-size: 1.9rem;
@@ -127,8 +124,9 @@ input, button, select, textarea { font-family: var(--font); }
   line-height: 1;
 }
 
-.logo-re  { color: var(--blue); }
-.logo-max { color: var(--red);  }
+.logo-re   { color: var(--blue); }
+.logo-max  { color: var(--red);  }
+.logo-crea { color: var(--red);  }
 
 .login-subtitle {
   font-size: 0.82rem;
