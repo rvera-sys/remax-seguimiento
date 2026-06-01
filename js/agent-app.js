@@ -567,6 +567,7 @@ function renderMobileDayCard(dayIdx) {
       pendingChanges[dateKey][metKey] = newVal;
 
       updateMobileSaveSummary(dateKey);
+      updateSaveButton();
       renderDayPills();
     });
   });
@@ -603,18 +604,21 @@ function setBottomNav(el) {
 // ── Módulo de voz ────────────────────────────────────────────────────────────
 
 function initVoice() {
-  // Puede haber mic en el panel de voz (desktop) o en el bottom nav (mobile)
-  const micBtn = document.getElementById('mic-btn');
-  if (!micBtn) return;
+  // IDs: mic-btn = bottom nav (mobile), mic-btn-panel = panel de voz (desktop)
+  const micBtnNav   = document.getElementById('mic-btn');
+  const micBtnPanel = document.getElementById('mic-btn-panel');
 
-  // Sync label del bottom nav
   function syncMicLabel(recording) {
     const label = document.getElementById('mic-status-label');
-    if (label) label.textContent = recording ? 'Parar' : 'Hablar';
-    if (label) label.style.color = recording ? 'var(--red)' : 'var(--blue)';
+    if (label) { label.textContent = recording ? 'Parar' : 'Hablar'; label.style.color = recording ? 'var(--red)' : 'var(--blue)'; }
+    [micBtnNav, micBtnPanel].forEach(b => {
+      if (!b) return;
+      b.classList.toggle('mic-recording', recording);
+      b.classList.toggle('mic-idle', !recording);
+    });
   }
 
-  micBtn.addEventListener('click', function() {
+  function handleMicClick() {
     if (isListening) {
       detenerVoz();
       syncMicLabel(false);
@@ -626,6 +630,7 @@ function initVoice() {
     if (transcriptBox) { transcriptBox.textContent = ''; transcriptBox.classList.add('show'); }
     ocultarResultadoVoz();
 
+    syncMicLabel(true);
     const ok = iniciarVoz(
       function(texto) {
         const tb = document.getElementById('voice-transcript');
@@ -633,15 +638,21 @@ function initVoice() {
         syncMicLabel(false);
         mostrarResultadoVoz(texto);
       },
-      // onError
       function(msg) {
+        syncMicLabel(false);
         showToast(msg, 'error');
-        document.getElementById('voice-transcript').classList.remove('show');
       }
     );
 
-    if (!ok) showToast('Reconocimiento de voz no disponible. Usá Chrome o Edge.', 'error');
-  });
+    if (!ok) {
+      syncMicLabel(false);
+      showToast('Reconocimiento de voz no disponible. Usá Chrome o Edge.', 'error');
+    }
+  }
+
+  // Bindear ambos botones
+  if (micBtnNav)   micBtnNav.addEventListener('click', handleMicClick);
+  if (micBtnPanel) micBtnPanel.addEventListener('click', handleMicClick);
 
   document.getElementById('btn-apply-voice')?.addEventListener('click', aplicarVozAlDia);
   document.getElementById('btn-discard-voice')?.addEventListener('click', ocultarResultadoVoz);

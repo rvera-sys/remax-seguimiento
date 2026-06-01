@@ -72,7 +72,8 @@ function detenerVoz() {
 // ── UI del micrófono ──────────────────────────────────────────────────────────
 
 function setMicState(state) {
-  const btn    = document.getElementById('mic-btn');
+  // Maneja ambos botones: panel desktop y bottom nav mobile
+  const btn    = document.getElementById('mic-btn') || document.getElementById('mic-btn-panel');
   const status = document.getElementById('mic-status');
   if (!btn) return;
 
