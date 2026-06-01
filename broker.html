@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RE/MAX — Panel Broker 2026</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<!-- ══════ HEADER ══════════════════════════════════════════════════ -->
+<header class="app-header">
+  <div class="header-logo">
+    <div class="logo-brand header-logo-text">
+      <span class="logo-re">RE/</span><span class="logo-max">MAX</span>
+    </div>
+  </div>
+  <div class="header-divider"></div>
+  <span class="header-app-name">Panel Broker — Seguimiento 2026</span>
+  <div class="header-spacer"></div>
+  <div class="header-user">
+    <div class="user-avatar" id="broker-initials">??</div>
+    <div class="user-info">
+      <div class="user-name" id="broker-name">Cargando...</div>
+      <span class="role-badge role-broker">Broker</span>
+    </div>
+    <button class="btn-logout" id="btn-logout">Salir</button>
+  </div>
+</header>
+
+<!-- ══════ LAYOUT ══════════════════════════════════════════════════ -->
+<div class="app-layout">
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Vista general</div>
+      <div class="nav-item active" data-section="panel">
+        <span class="nav-icon">🏠</span> Panel general
+      </div>
+      <div class="nav-item" data-section="equipo">
+        <span class="nav-icon">👥</span> Mi equipo
+      </div>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Análisis</div>
+      <div class="nav-item" data-section="comparativa">
+        <span class="nav-icon">📊</span> Comparativa
+      </div>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Administración</div>
+      <div class="nav-item" data-section="gestion">
+        <span class="nav-icon">⚙️</span> Gestión de acceso
+        <span class="nav-badge" id="pending-badge">0</span>
+      </div>
+      <div class="nav-item" data-section="auditoria">
+        <span class="nav-icon">📋</span> Auditoría
+      </div>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <main class="main-content">
+
+    <!-- ── PANEL GENERAL ────────────────────────────────────────── -->
+    <section id="section-panel" class="main-section active">
+
+      <div class="section-header">
+        <div>
+          <div class="section-title">Panel general del equipo</div>
+          <div class="section-subtitle">Resumen de actividad acumulada 2026</div>
+        </div>
+        <button class="btn btn-outline btn-sm" onclick="location.reload()">↺ Actualizar</button>
+      </div>
+
+      <div class="kpi-grid" id="team-kpi-cards"></div>
+
+      <div class="grid-2 mb-24">
+        <div class="chart-card">
+          <div class="chart-card-title">Cierres de venta por agente</div>
+          <div class="chart-container chart-container-md">
+            <canvas id="chart-team-cierres"></canvas>
+          </div>
+        </div>
+        <div class="card" style="padding:0">
+          <div class="card-header">
+            <div class="card-title">🏆 Ranking del equipo — Acumulado 2026</div>
+          </div>
+          <div style="overflow-x:auto">
+            <table>
+              <thead>
+                <tr>
+                  <th style="width:40px">#</th>
+                  <th style="text-align:left">Agente</th>
+                  <th>Reuniones</th>
+                  <th>Pre-List</th>
+                  <th>Reservas</th>
+                  <th>Cierres</th>
+                  <th>Total</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="ranking-tbody">
+                <tr><td colspan="8" style="text-align:center;padding:20px;color:#9ca3af">Cargando...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ── MI EQUIPO ────────────────────────────────────────────── -->
+    <section id="section-equipo" class="main-section">
+
+      <div class="section-header">
+        <div>
+          <div class="section-title">Mi equipo</div>
+          <div class="section-subtitle">Vista rápida de cada agente y sus métricas acumuladas</div>
+        </div>
+      </div>
+
+      <div class="agent-cards-grid" id="equipo-cards">
+        <div style="color:#9ca3af;padding:20px">Cargando agentes...</div>
+      </div>
+
+    </section>
+
+    <!-- ── COMPARATIVA ──────────────────────────────────────────── -->
+    <section id="section-comparativa" class="main-section">
+
+      <div class="section-header">
+        <div>
+          <div class="section-title">Comparativa del equipo</div>
+          <div class="section-subtitle">Análisis visual de performance entre agentes — acumulado 2026</div>
+        </div>
+      </div>
+
+      <div class="grid-2 mb-24">
+        <div class="chart-card">
+          <div class="chart-card-title">Radar de actividades (top 8 agentes activos)</div>
+          <div class="chart-container chart-container-lg">
+            <canvas id="chart-radar"></canvas>
+          </div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-card-title">
+            Comparativa por métrica
+            <select id="comparativa-metric-sel" class="form-input" style="width:auto;padding:4px 10px;font-size:0.8rem"></select>
+          </div>
+          <div class="chart-container chart-container-lg">
+            <canvas id="chart-comparativa-bars"></canvas>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ── GESTIÓN DE ACCESO ────────────────────────────────────── -->
+    <section id="section-gestion" class="main-section">
+
+      <div class="section-header">
+        <div>
+          <div class="section-title">Gestión de acceso</div>
+          <div class="section-subtitle">Activá, suspendé o ascendé agentes. Los cambios son inmediatos.</div>
+        </div>
+      </div>
+
+      <!-- Cuentas pendientes -->
+      <div class="pending-box" id="pending-box" style="display:none">
+        <div class="pending-box-title">⏳ Cuentas pendientes de activación</div>
+        <div id="pending-list"></div>
+      </div>
+
+      <!-- Tabla de usuarios -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">👥 Todos los usuarios</div>
+        </div>
+        <div style="overflow-x:auto">
+          <table>
+            <thead>
+              <tr>
+                <th style="text-align:left">Nombre</th>
+                <th style="text-align:left">Email</th>
+                <th>Rol</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="users-tbody">
+              <tr><td colspan="5" style="text-align:center;padding:20px;color:#9ca3af">Cargando...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card mt-16" style="background:#fff0f0;border-color:#fca5a5">
+        <div class="card-body" style="display:flex;gap:12px;align-items:flex-start">
+          <span style="font-size:1.4rem">⚠️</span>
+          <div>
+            <div style="font-weight:700;color:#CC0000;margin-bottom:4px">Atención al gestionar roles</div>
+            <div style="font-size:0.85rem;color:#374151">
+              Promover a un agente a <strong>Broker</strong> le da acceso a ver los datos de todos los agentes
+              y gestionar usuarios. Solo hacerlo cuando corresponda al ascenso real.
+              Todas las acciones quedan registradas en el log de auditoría.
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ── AUDITORÍA ────────────────────────────────────────────── -->
+    <section id="section-auditoria" class="main-section">
+
+      <div class="section-header">
+        <div>
+          <div class="section-title">Log de auditoría</div>
+          <div class="section-subtitle">Historial de acciones administrativas sobre usuarios</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div style="overflow-x:auto">
+          <table>
+            <thead>
+              <tr>
+                <th style="text-align:left">Fecha y hora</th>
+                <th style="text-align:left">Acción</th>
+                <th style="text-align:left">Usuario afectado</th>
+                <th style="text-align:left">Realizado por</th>
+              </tr>
+            </thead>
+            <tbody id="audit-tbody">
+              <tr><td colspan="4" style="text-align:center;padding:20px;color:#9ca3af">Cargando...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+</div>
+
+<!-- ══════ MODAL: DETALLE DE AGENTE ════════════════════════════════ -->
+<div id="agent-detail-modal" class="modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">
+        📋 Seguimiento de: <span id="detail-agent-name">—</span>
+      </div>
+      <button class="modal-close" id="detail-close">✕</button>
+    </div>
+    <div class="modal-body">
+
+      <!-- Navegador de semana dentro del modal -->
+      <div class="week-nav" style="margin-bottom:16px">
+        <button class="week-nav-btn" id="detail-prev-week">&#8592;</button>
+        <div class="week-info">
+          <div class="week-label-main" id="detail-week-label">Semana —</div>
+          <div class="week-range-sub"  id="detail-week-range">—</div>
+        </div>
+        <button class="week-nav-btn" id="detail-next-week">&#8594;</button>
+      </div>
+
+      <div style="overflow-x:auto">
+        <table id="detail-week-table">
+          <thead><tr></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Toast & Loading -->
+<div id="toast-container"></div>
+<div id="loading-overlay">
+  <div class="spinner"></div>
+  <div class="loading-text">Cargando equipo...</div>
+</div>
+
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+<script src="js/utils.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/db.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/charts.js"></script>
+<script src="js/broker-app.js"></script>
+
+<script>
+  requireAuth('broker');
+
+  // Cerrar modal con Escape
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeAgentDetail();
+  });
+
+  // Cerrar modal clickeando fuera
+  document.getElementById('agent-detail-modal').addEventListener('click', function(e) {
+    if (e.target === this) closeAgentDetail();
+  });
+</script>
+</body>
+</html>

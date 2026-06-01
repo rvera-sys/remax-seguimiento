@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RE/MAX — Mi Seguimiento 2026</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<!-- ══════ HEADER ══════════════════════════════════════════════════ -->
+<header class="app-header">
+  <div class="header-logo">
+    <div class="logo-brand header-logo-text">
+      <span class="logo-re">RE/</span><span class="logo-max">MAX</span>
+    </div>
+  </div>
+  <div class="header-divider"></div>
+  <span class="header-app-name">Seguimiento Comercial 2026</span>
+  <div class="header-spacer"></div>
+  <div class="header-user">
+    <div class="user-avatar" id="user-initials">??</div>
+    <div class="user-info">
+      <div class="user-name" id="user-name">Cargando...</div>
+      <span class="role-badge role-agent">Agente</span>
+    </div>
+    <button class="btn-logout" id="btn-logout">Salir</button>
+  </div>
+</header>
+
+<!-- ══════ LAYOUT ══════════════════════════════════════════════════ -->
+<div class="app-layout">
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Carga de datos</div>
+      <div class="nav-item active" data-section="semana">
+        <span class="nav-icon">📅</span> Semana actual
+      </div>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Análisis</div>
+      <div class="nav-item" data-section="mensual">
+        <span class="nav-icon">📊</span> Resumen mensual
+      </div>
+      <div class="nav-item" data-section="tablero">
+        <span class="nav-icon">🏆</span> Mi tablero KPI
+      </div>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <main class="main-content">
+
+    <!-- ── SECCIÓN: SEMANA ──────────────────────────────────────── -->
+    <section id="section-semana" class="main-section active">
+
+      <div class="section-header">
+        <div>
+          <div class="section-title">Carga semanal</div>
+          <div class="section-subtitle">Registrá tus actividades día a día</div>
+        </div>
+      </div>
+
+      <!-- Navegador de semana -->
+      <div class="week-nav">
+        <button class="week-nav-btn" id="btn-prev-week" title="Semana anterior">&#8592;</button>
+        <div class="week-info">
+          <div class="week-label-main">
+            <span id="week-label">Semana —</span>
+            <span class="week-current-badge" id="week-badge" style="display:none">Semana actual</span>
+          </div>
+          <div class="week-range-sub" id="week-range">—</div>
+        </div>
+        <button class="week-nav-btn" id="btn-next-week" title="Semana siguiente">&#8594;</button>
+      </div>
+
+      <!-- Chips KPI de la semana -->
+      <div class="week-kpi-row" id="week-kpi-chips">
+        <div class="week-kpi-chip">
+          <span class="week-kpi-dot" style="background:#27ae60"></span>
+          <span class="week-kpi-num" id="kpi-reunionesVerdes">0</span>
+          <span class="week-kpi-lbl">Reuniones</span>
+        </div>
+        <div class="week-kpi-chip">
+          <span class="week-kpi-dot" style="background:#003DA5"></span>
+          <span class="week-kpi-num" id="kpi-preListing">0</span>
+          <span class="week-kpi-lbl">Pre-Listing</span>
+        </div>
+        <div class="week-kpi-chip">
+          <span class="week-kpi-dot" style="background:#0055b3"></span>
+          <span class="week-kpi-num" id="kpi-preBuying">0</span>
+          <span class="week-kpi-lbl">Pre-Buying</span>
+        </div>
+        <div class="week-kpi-chip">
+          <span class="week-kpi-dot" style="background:#b7791f"></span>
+          <span class="week-kpi-num" id="kpi-reservas">0</span>
+          <span class="week-kpi-lbl">Reservas</span>
+        </div>
+        <div class="week-kpi-chip">
+          <span class="week-kpi-dot" style="background:#CC0000"></span>
+          <span class="week-kpi-num" id="kpi-cierresVenta">0</span>
+          <span class="week-kpi-lbl">C. Venta</span>
+        </div>
+        <div class="week-kpi-chip">
+          <span class="week-kpi-dot" style="background:#9b0000"></span>
+          <span class="week-kpi-num" id="kpi-cierresCompra">0</span>
+          <span class="week-kpi-lbl">C. Compra</span>
+        </div>
+        <div class="week-kpi-chip">
+          <span class="week-kpi-dot" style="background:#6b21a8"></span>
+          <span class="week-kpi-num" id="kpi-llamados">0</span>
+          <span class="week-kpi-lbl">Llamados</span>
+        </div>
+      </div>
+
+      <!-- Tabs auto / manual -->
+      <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:6px;">
+        <div class="metric-tabs">
+          <button class="metric-tab active" data-tab="auto">Actividades comerciales</button>
+          <button class="metric-tab"        data-tab="manual">Marketing y captación</button>
+        </div>
+        <div id="btn-save-week" class="btn btn-save" style="cursor:pointer">Guardar semana —</div>
+      </div>
+
+      <div class="metric-tab-hint" id="tab-hint">
+        🗓️ <strong>Actividades comerciales</strong>: reuniones, listings, buyings, reservas y cierres. Estos datos se pueden sincronizar con Google Calendar.
+      </div>
+
+      <!-- Tabla semanal -->
+      <div class="table-wrapper">
+        <table id="week-table">
+          <thead><tr id="week-thead-row"></tr></thead>
+          <tbody id="week-tbody"></tbody>
+        </table>
+      </div>
+
+    </section>
+
+    <!-- ── SECCIÓN: MENSUAL ─────────────────────────────────────── -->
+    <section id="section-mensual" class="main-section">
+
+      <div class="section-header">
+        <div>
+          <div class="section-title">Resumen mensual 2026</div>
+          <div class="section-subtitle">Totales acumulados por mes para cada actividad</div>
+        </div>
+      </div>
+
+      <div class="grid-2 mb-24">
+        <div class="chart-card">
+          <div class="chart-card-title">
+            Evolución mensual
+            <select id="monthly-metric-select" class="form-input" style="width:auto;padding:4px 10px;font-size:0.8rem"></select>
+          </div>
+          <div class="chart-container chart-container-md">
+            <canvas id="chart-monthly"></canvas>
+          </div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-card-title">Top 5 métricas clave</div>
+          <div class="chart-container chart-container-md">
+            <canvas id="chart-top5-monthly"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">📋 Detalle mensual completo</div>
+        </div>
+        <div style="overflow-x:auto">
+          <table class="monthly-table">
+            <thead id="monthly-thead"></thead>
+            <tbody id="monthly-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ── SECCIÓN: TABLERO KPI ─────────────────────────────────── -->
+    <section id="section-tablero" class="main-section">
+
+      <div class="section-header">
+        <div>
+          <div class="section-title">Mi tablero KPI — 2026</div>
+          <div class="section-subtitle">Acumulado anual y tasas de conversión del embudo comercial</div>
+        </div>
+      </div>
+
+      <!-- KPI cards -->
+      <div class="kpi-grid" id="kpi-cards"></div>
+
+      <div class="grid-2 mb-24">
+        <div class="chart-card">
+          <div class="chart-card-title">Embudo comercial acumulado</div>
+          <div class="chart-container chart-container-lg">
+            <canvas id="chart-funnel"></canvas>
+          </div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-card-title">Evolución top 5 métricas (mensual)</div>
+          <div class="chart-container chart-container-lg">
+            <canvas id="chart-top5"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">📐 Tasas de conversión acumuladas 2026</div>
+        </div>
+        <div class="card-body">
+          <div id="conversion-rates"></div>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+</div>
+
+<!-- Toast & Loading -->
+<div id="toast-container"></div>
+<div id="loading-overlay">
+  <div class="spinner"></div>
+  <div class="loading-text">Cargando datos...</div>
+</div>
+
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+<script src="js/utils.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/db.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/charts.js"></script>
+<script src="js/agent-app.js"></script>
+
+<script>
+  requireAuth('agent');
+
+  // Hint dinámico según tab activo
+  document.querySelectorAll('.metric-tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const hints = {
+        auto:   '🗓️ <strong>Actividades comerciales</strong>: reuniones, listings, buyings, reservas y cierres. Sincronizables con Google Calendar.',
+        manual: '✍️ <strong>Marketing y captación</strong>: notas, e-reports, pop by, eventos, redes, nuevos contactos y captaciones. Carga manual.'
+      };
+      document.getElementById('tab-hint').innerHTML = hints[btn.dataset.tab] || '';
+    });
+  });
+</script>
+</body>
+</html>

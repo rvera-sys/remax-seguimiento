@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RE/MAX — Seguimiento 2026</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<div class="login-page">
+  <div class="login-card">
+
+    <!-- Logo -->
+    <div class="login-logo">
+      <div class="logo-balloon">
+        <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="18" cy="14" r="11" fill="#CC0000"/>
+          <circle cx="18" cy="14" r="7"  fill="white"/>
+          <circle cx="18" cy="14" r="3.5" fill="#003DA5"/>
+          <rect x="17" y="25" width="2" height="8" rx="1" fill="#CC0000"/>
+          <path d="M14 33 Q18 30 22 33" stroke="#CC0000" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="logo-brand">
+        <span class="logo-re">RE/</span><span class="logo-max">MAX</span>
+      </div>
+      <div class="login-subtitle">Seguimiento Comercial 2026</div>
+    </div>
+
+    <!-- Alerta de cuenta suspendida -->
+    <div id="alert-suspended" class="alert alert-warning" style="display:none">
+      ⚠️ Tu cuenta está pendiente de activación o fue suspendida. Contactá a tu broker.
+    </div>
+
+    <!-- Alerta de error genérico -->
+    <div id="alert-error" class="alert alert-error" style="display:none">
+      <span id="alert-error-msg">Credenciales incorrectas.</span>
+    </div>
+
+    <!-- Tabs Login / Registro -->
+    <div class="tab-switch">
+      <button class="tab-btn active" onclick="switchTab('login')">Iniciar sesión</button>
+      <button class="tab-btn"        onclick="switchTab('register')">Registrarme</button>
+    </div>
+
+    <!-- Panel LOGIN -->
+    <div id="tab-login" class="tab-panel active">
+      <form id="form-login" novalidate>
+        <div class="form-group">
+          <label class="form-label" for="login-email">Correo electrónico</label>
+          <input id="login-email" type="email" class="form-input" placeholder="nombre@remax.com.ar" autocomplete="email" required>
+          <div class="form-error" id="err-login-email">Ingresá un email válido.</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="login-password">Contraseña</label>
+          <input id="login-password" type="password" class="form-input" placeholder="••••••••" autocomplete="current-password" required>
+          <div class="form-error" id="err-login-password">Ingresá tu contraseña.</div>
+        </div>
+        <button type="submit" class="btn btn-primary btn-full btn-lg" id="btn-login">
+          Ingresar
+        </button>
+      </form>
+      <div class="login-footer">
+        <a href="#" id="link-forgot">¿Olvidaste tu contraseña?</a>
+      </div>
+    </div>
+
+    <!-- Panel REGISTRO -->
+    <div id="tab-register" class="tab-panel">
+      <div class="alert alert-info">
+        ℹ️ Tu cuenta quedará pendiente hasta que tu broker la active.
+      </div>
+      <form id="form-register" novalidate>
+        <div class="form-group">
+          <label class="form-label" for="reg-nombre">Nombre completo</label>
+          <input id="reg-nombre" type="text" class="form-input" placeholder="María García" autocomplete="name" required>
+          <div class="form-error" id="err-reg-nombre">Ingresá tu nombre completo.</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="reg-email">Correo electrónico</label>
+          <input id="reg-email" type="email" class="form-input" placeholder="nombre@remax.com.ar" autocomplete="email" required>
+          <div class="form-error" id="err-reg-email">Ingresá un email válido.</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="reg-password">Contraseña</label>
+          <input id="reg-password" type="password" class="form-input" placeholder="Mínimo 8 caracteres" autocomplete="new-password" required>
+          <div class="form-error" id="err-reg-password">La contraseña debe tener al menos 8 caracteres.</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="reg-confirm">Confirmar contraseña</label>
+          <input id="reg-confirm" type="password" class="form-input" placeholder="Repetí la contraseña" autocomplete="new-password" required>
+          <div class="form-error" id="err-reg-confirm">Las contraseñas no coinciden.</div>
+        </div>
+        <button type="submit" class="btn btn-primary btn-full btn-lg" id="btn-register">
+          Crear cuenta
+        </button>
+      </form>
+    </div>
+
+  </div>
+</div>
+
+<!-- Toast & Loading -->
+<div id="toast-container"></div>
+<div id="loading-overlay"><div class="spinner"></div><div class="loading-text">Verificando...</div></div>
+
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+
+<script src="js/utils.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/db.js"></script>
+<script src="js/auth.js"></script>
+
+<script>
+  // ── Redirección si ya está logueado ─────────────────────────────
+  auth.onAuthStateChanged(async function(user) {
+    if (!user) return;
+    showLoading(true);
+    try {
+      const profile = await getUserProfile(user.uid);
+      if (profile && profile.active !== false) {
+        window.location.href = profile.role === 'broker' ? 'broker.html' : 'agent.html';
+      } else {
+        await auth.signOut();
+        document.getElementById('alert-suspended').style.display = 'flex';
+        showLoading(false);
+      }
+    } catch(e) { showLoading(false); }
+  });
+
+  // Mostrar alerta de cuenta suspendida si viene redirigido
+  if (new URLSearchParams(location.search).get('reason') === 'suspended') {
+    document.getElementById('alert-suspended').style.display = 'flex';
+  }
+
+  // ── Tabs ─────────────────────────────────────────────────────────
+  function switchTab(tab) {
+    document.querySelectorAll('.tab-btn').forEach((b, i) => b.classList.toggle('active', (i === 0 && tab === 'login') || (i === 1 && tab === 'register')));
+    document.getElementById('tab-login').classList.toggle('active', tab === 'login');
+    document.getElementById('tab-register').classList.toggle('active', tab === 'register');
+    hideAlerts();
+  }
+
+  function hideAlerts() {
+    document.getElementById('alert-suspended').style.display = 'none';
+    document.getElementById('alert-error').style.display = 'none';
+  }
+
+  function showError(msg) {
+    const el = document.getElementById('alert-error');
+    document.getElementById('alert-error-msg').textContent = msg;
+    el.style.display = 'flex';
+  }
+
+  // ── Form: Login ──────────────────────────────────────────────────
+  document.getElementById('form-login').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    hideAlerts();
+    const email = document.getElementById('login-email').value.trim();
+    const pass  = document.getElementById('login-password').value;
+
+    let valid = true;
+    if (!email || !/\S+@\S+\.\S+/.test(email)) {
+      document.getElementById('err-login-email').classList.add('show'); valid = false;
+    } else { document.getElementById('err-login-email').classList.remove('show'); }
+
+    if (!pass) {
+      document.getElementById('err-login-password').classList.add('show'); valid = false;
+    } else { document.getElementById('err-login-password').classList.remove('show'); }
+
+    if (!valid) return;
+
+    const btn = document.getElementById('btn-login');
+    btn.disabled = true; btn.textContent = 'Verificando...';
+    showLoading(true);
+
+    try {
+      const { profile } = await loginUser(email, pass);
+      window.location.href = profile.role === 'broker' ? 'broker.html' : 'agent.html';
+    } catch(err) {
+      showLoading(false); btn.disabled = false; btn.textContent = 'Ingresar';
+      if (err.message === 'SUSPENDED') {
+        document.getElementById('alert-suspended').style.display = 'flex';
+      } else if (err.code === 'auth/wrong-password' || err.code === 'auth/user-not-found' || err.code === 'auth/invalid-credential') {
+        showError('Email o contraseña incorrectos.');
+      } else {
+        showError('Error al iniciar sesión. Intentá de nuevo.');
+      }
+    }
+  });
+
+  // ── Form: Registro ───────────────────────────────────────────────
+  document.getElementById('form-register').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    hideAlerts();
+    const nombre  = document.getElementById('reg-nombre').value.trim();
+    const email   = document.getElementById('reg-email').value.trim();
+    const pass    = document.getElementById('reg-password').value;
+    const confirm = document.getElementById('reg-confirm').value;
+
+    let valid = true;
+    if (!nombre || nombre.length < 3) {
+      document.getElementById('err-reg-nombre').classList.add('show'); valid = false;
+    } else { document.getElementById('err-reg-nombre').classList.remove('show'); }
+
+    if (!email || !/\S+@\S+\.\S+/.test(email)) {
+      document.getElementById('err-reg-email').classList.add('show'); valid = false;
+    } else { document.getElementById('err-reg-email').classList.remove('show'); }
+
+    if (!pass || pass.length < 8) {
+      document.getElementById('err-reg-password').classList.add('show'); valid = false;
+    } else { document.getElementById('err-reg-password').classList.remove('show'); }
+
+    if (pass !== confirm) {
+      document.getElementById('err-reg-confirm').classList.add('show'); valid = false;
+    } else { document.getElementById('err-reg-confirm').classList.remove('show'); }
+
+    if (!valid) return;
+
+    const btn = document.getElementById('btn-register');
+    btn.disabled = true; btn.textContent = 'Creando cuenta...';
+    showLoading(true);
+
+    try {
+      await registerAgent(nombre, email, pass);
+      showLoading(false); btn.disabled = false; btn.textContent = 'Crear cuenta';
+      switchTab('login');
+      showToast('Cuenta creada. Esperá que tu broker la active.', 'info');
+    } catch(err) {
+      showLoading(false); btn.disabled = false; btn.textContent = 'Crear cuenta';
+      if (err.code === 'auth/email-already-in-use') {
+        showError('Ese email ya está registrado.');
+      } else {
+        showError('Error al crear la cuenta. Intentá de nuevo.');
+      }
+    }
+  });
+
+  // ── Recuperar contraseña ─────────────────────────────────────────
+  document.getElementById('link-forgot').addEventListener('click', async function(e) {
+    e.preventDefault();
+    const email = document.getElementById('login-email').value.trim();
+    if (!email) { showError('Ingresá tu email para recuperar la contraseña.'); return; }
+    try {
+      await resetPassword(email);
+      showToast('Email de recuperación enviado. Revisá tu bandeja.', 'info');
+    } catch(err) {
+      showError('No encontramos ese email. Verificalo.');
+    }
+  });
+</script>
+</body>
+</html>

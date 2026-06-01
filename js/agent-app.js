@@ -1,0 +1,406 @@
+// ─── DASHBOARD DEL AGENTE ─────────────────────────────────────────────────────
+
+let currentUser = null;
+let currentProfile = null;
+let currentWeekNum = getCurrentWeekNum();
+let currentWeekData = {};
+let pendingChanges = {};
+let monthlyTotals = {};
+let yearTotals = {};
+let activeSection = 'semana';
+let activeMetricTab = 'auto';
+let monthlyChartInstance = null;
+let activeMonthlyMetric = 'reunionesVerdes';
+
+// ── Punto de entrada llamado por requireAuth() ────────────────────────────────
+
+async function initApp(user, profile) {
+  currentUser    = user;
+  currentProfile = profile;
+
+  document.getElementById('user-name').textContent = profile.nombre;
+  document.getElementById('user-initials').textContent = getInitials(profile.nombre);
+
+  bindNav();
+  bindWeekNav();
+  bindMetricTabs();
+  bindSaveButton();
+
+  showLoading(true);
+  await loadWeekView(currentWeekNum);
+  showLoading(false);
+
+  loadBackgroundData();
+}
+
+function getInitials(nombre) {
+  return nombre.split(' ').slice(0, 2).map(w => w[0]).join('').toUpperCase();
+}
+
+// ── Navegación lateral ────────────────────────────────────────────────────────
+
+function bindNav() {
+  document.querySelectorAll('.nav-item[data-section]').forEach(el => {
+    el.addEventListener('click', () => showSection(el.dataset.section));
+  });
+  document.getElementById('btn-logout').addEventListener('click', logoutUser);
+}
+
+function showSection(section) {
+  activeSection = section;
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.toggle('active', el.dataset.section === section));
+  document.querySelectorAll('.main-section').forEach(el => el.classList.toggle('active', el.id === 'section-' + section));
+
+  if (section === 'mensual' && Object.keys(monthlyTotals).length === 0) {
+    loadMonthlyView();
+  }
+  if (section === 'tablero' && yearTotals.reunionesVerdes === undefined) {
+    loadTableroView();
+  }
+}
+
+// ── Vista semanal ─────────────────────────────────────────────────────────────
+
+function bindWeekNav() {
+  document.getElementById('btn-prev-week').addEventListener('click', () => changeWeek(-1));
+  document.getElementById('btn-next-week').addEventListener('click', () => changeWeek(1));
+}
+
+function bindMetricTabs() {
+  document.querySelectorAll('.metric-tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      activeMetricTab = btn.dataset.tab;
+      document.querySelectorAll('.metric-tab').forEach(b => b.classList.toggle('active', b.dataset.tab === activeMetricTab));
+      renderWeekTable();
+    });
+  });
+}
+
+function bindSaveButton() {
+  document.getElementById('btn-save-week').addEventListener('click', saveWeek);
+}
+
+async function changeWeek(delta) {
+  if (Object.keys(pendingChanges).length > 0) {
+    if (!confirm('Tenés cambios sin guardar. ¿Querés descartarlos?')) return;
+  }
+  currentWeekNum = Math.max(1, Math.min(53, currentWeekNum + delta));
+  pendingChanges = {};
+  showLoading(true);
+  await loadWeekView(currentWeekNum);
+  showLoading(false);
+}
+
+async function loadWeekView(weekNum) {
+  document.getElementById('week-label').textContent = `Semana ${weekNum}`;
+  document.getElementById('week-range').textContent  = formatWeekRange(weekNum);
+
+  const isCurrentWeek = weekNum === getCurrentWeekNum();
+  document.getElementById('week-badge').textContent    = isCurrentWeek ? 'Semana actual' : '';
+  document.getElementById('week-badge').style.display  = isCurrentWeek ? 'inline-flex' : 'none';
+
+  currentWeekData = await getWeekData(currentUser.uid, weekNum);
+  pendingChanges  = {};
+  renderWeekTable();
+  renderWeekTotals();
+}
+
+function renderWeekTable() {
+  const metrics = activeMetricTab === 'auto' ? METRICS_AUTO : METRICS_MANUAL;
+  const days    = getWeekDays(currentWeekNum);
+  const today   = dateToKey(new Date());
+
+  // Header
+  const headRow = document.getElementById('week-thead-row');
+  headRow.innerHTML = `<th class="col-day">Día</th><th class="col-date">Fecha</th>` +
+    metrics.map(m => `<th style="color:${m.color}" title="${m.label}">${m.short}</th>`).join('') +
+    `<th class="col-total">Total</th>`;
+
+  // Body
+  const tbody = document.getElementById('week-tbody');
+  tbody.innerHTML = '';
+
+  days.forEach((date, i) => {
+    const key  = dateToKey(date);
+    const data = { ...(currentWeekData[key] || emptyDay()), ...(pendingChanges[key] || {}) };
+    const rowTotal = metrics.reduce((sum, m) => sum + (parseInt(data[m.key]) || 0), 0);
+    const isToday  = key === today;
+
+    const tr = document.createElement('tr');
+    if (isToday) tr.classList.add('row-today');
+
+    tr.innerHTML = `
+      <td class="col-day"><span class="day-name">${DIAS_ES[i]}</span></td>
+      <td class="col-date">${formatDate(date, true)}</td>
+      ${metrics.map(m => `
+        <td>
+          <input type="number" min="0" max="99" class="metric-input"
+            data-date="${key}" data-key="${m.key}"
+            value="${parseInt(data[m.key]) || 0}"
+            style="--metric-color:${m.color}">
+        </td>
+      `).join('')}
+      <td class="col-total"><span class="row-total" id="rt-${key}">${rowTotal}</span></td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  // Total row
+  const totalsRow = document.createElement('tr');
+  totalsRow.classList.add('totals-row');
+  totalsRow.innerHTML = `
+    <td colspan="2"><strong>TOTAL SEMANA</strong></td>
+    ${metrics.map(m => {
+      const col_total = days.reduce((sum, d) => {
+        const key = dateToKey(d);
+        const data = { ...(currentWeekData[key] || emptyDay()), ...(pendingChanges[key] || {}) };
+        return sum + (parseInt(data[m.key]) || 0);
+      }, 0);
+      return `<td class="col-total-metric" id="ct-${m.key}" style="color:${m.color}"><strong>${col_total}</strong></td>`;
+    }).join('')}
+    <td class="col-total" id="week-grand-total"><strong>${calcWeekGrandTotal(metrics)}</strong></td>
+  `;
+  tbody.appendChild(totalsRow);
+
+  // Bind inputs
+  tbody.querySelectorAll('.metric-input').forEach(input => {
+    input.addEventListener('input', handleMetricInput);
+    input.addEventListener('focus', function() { this.select(); });
+  });
+}
+
+function handleMetricInput(e) {
+  const dateKey = e.target.dataset.date;
+  const metKey  = e.target.dataset.key;
+  const val     = Math.max(0, parseInt(e.target.value) || 0);
+  e.target.value = val;
+
+  if (!pendingChanges[dateKey]) pendingChanges[dateKey] = {};
+  pendingChanges[dateKey][metKey] = val;
+
+  // Actualizar total de fila
+  updateRowTotal(dateKey);
+  updateColumnTotal(metKey);
+  updateGrandTotal();
+  updateSaveButton();
+}
+
+function updateRowTotal(dateKey) {
+  const data = { ...(currentWeekData[dateKey] || emptyDay()), ...(pendingChanges[dateKey] || {}) };
+  const metrics = activeMetricTab === 'auto' ? METRICS_AUTO : METRICS_MANUAL;
+  const total = metrics.reduce((sum, m) => sum + (parseInt(data[m.key]) || 0), 0);
+  const el = document.getElementById('rt-' + dateKey);
+  if (el) el.textContent = total;
+}
+
+function updateColumnTotal(metKey) {
+  const days = getWeekDays(currentWeekNum);
+  const total = days.reduce((sum, d) => {
+    const key = dateToKey(d);
+    const data = { ...(currentWeekData[key] || emptyDay()), ...(pendingChanges[key] || {}) };
+    return sum + (parseInt(data[metKey]) || 0);
+  }, 0);
+  const el = document.getElementById('ct-' + metKey);
+  if (el) el.querySelector('strong').textContent = total;
+}
+
+function updateGrandTotal() {
+  const metrics = activeMetricTab === 'auto' ? METRICS_AUTO : METRICS_MANUAL;
+  const el = document.getElementById('week-grand-total');
+  if (el) el.querySelector('strong').textContent = calcWeekGrandTotal(metrics);
+}
+
+function calcWeekGrandTotal(metrics) {
+  const days = getWeekDays(currentWeekNum);
+  return days.reduce((sum, d) => {
+    const key = dateToKey(d);
+    const data = { ...(currentWeekData[key] || emptyDay()), ...(pendingChanges[key] || {}) };
+    return sum + metrics.reduce((s2, m) => s2 + (parseInt(data[m.key]) || 0), 0);
+  }, 0);
+}
+
+function renderWeekTotals() {
+  const days = getWeekDays(currentWeekNum);
+  const combined = {};
+  days.forEach(d => {
+    const key = dateToKey(d);
+    const data = currentWeekData[key] || emptyDay();
+    METRICS_KEYS.forEach(k => combined[k] = (combined[k] || 0) + (parseInt(data[k]) || 0));
+  });
+
+  FUNNEL.forEach(f => {
+    const el = document.getElementById('kpi-' + f.key);
+    if (el) el.textContent = combined[f.key] || 0;
+  });
+}
+
+function updateSaveButton() {
+  const btn = document.getElementById('btn-save-week');
+  const hasPending = Object.keys(pendingChanges).length > 0;
+  btn.classList.toggle('has-changes', hasPending);
+  btn.textContent = hasPending ? `Guardar semana ${currentWeekNum} ●` : `Guardar semana ${currentWeekNum}`;
+}
+
+async function saveWeek() {
+  if (Object.keys(pendingChanges).length === 0) {
+    showToast('No hay cambios para guardar.', 'info');
+    return;
+  }
+  const btn = document.getElementById('btn-save-week');
+  btn.disabled = true;
+  btn.textContent = 'Guardando...';
+
+  try {
+    const saves = Object.entries(pendingChanges).map(([dateKey, data]) => {
+      const existing = currentWeekData[dateKey] || emptyDay();
+      const merged   = { ...existing, ...data };
+      return saveDay(currentUser.uid, dateKey, merged);
+    });
+    await Promise.all(saves);
+
+    // Actualizar cache local
+    Object.entries(pendingChanges).forEach(([dateKey, data]) => {
+      currentWeekData[dateKey] = { ...(currentWeekData[dateKey] || emptyDay()), ...data };
+    });
+    pendingChanges = {};
+
+    showToast('Semana guardada correctamente.');
+    renderWeekTotals();
+  } catch (err) {
+    console.error(err);
+    showToast('Error al guardar. Intentá de nuevo.', 'error');
+  } finally {
+    btn.disabled = false;
+    updateSaveButton();
+  }
+}
+
+// ── Vista mensual ─────────────────────────────────────────────────────────────
+
+async function loadMonthlyView() {
+  showLoading(true);
+  try {
+    monthlyTotals = await getMonthlyTotals(currentUser.uid, 2026);
+    renderMonthlySummaryTable();
+    renderMonthlyChart(activeMonthlyMetric);
+
+    // Bind selector de métrica para el gráfico
+    const sel = document.getElementById('monthly-metric-select');
+    if (sel) {
+      sel.innerHTML = METRICS_AUTO.map(m =>
+        `<option value="${m.key}" ${m.key === activeMonthlyMetric ? 'selected' : ''}>${m.label}</option>`
+      ).join('');
+      sel.addEventListener('change', () => {
+        activeMonthlyMetric = sel.value;
+        renderMonthlyChart(activeMonthlyMetric);
+      });
+    }
+  } finally {
+    showLoading(false);
+  }
+}
+
+function renderMonthlySummaryTable() {
+  const thead = document.getElementById('monthly-thead');
+  const tbody = document.getElementById('monthly-tbody');
+  if (!thead || !tbody) return;
+
+  thead.innerHTML = `<tr>
+    <th>Métrica</th>
+    ${MESES_ES.map(m => `<th>${m.substring(0,3)}</th>`).join('')}
+    <th>Total</th>
+  </tr>`;
+
+  tbody.innerHTML = METRICS.map(metric => {
+    const rowTotal = Object.values(monthlyTotals).reduce((s, m) => s + (m[metric.key] || 0), 0);
+    const cells = Array.from({ length: 12 }, (_, i) => `<td>${monthlyTotals[i] ? (monthlyTotals[i][metric.key] || 0) : 0}</td>`).join('');
+    return `<tr>
+      <td><span class="metric-dot" style="background:${metric.color}"></span>${metric.label}</td>
+      ${cells}
+      <td class="col-total"><strong>${rowTotal}</strong></td>
+    </tr>`;
+  }).join('');
+}
+
+function renderMonthlyChart(metricKey) {
+  if (Object.keys(monthlyTotals).length === 0) return;
+  renderMonthlyLineChart('chart-monthly', monthlyTotals, metricKey);
+}
+
+// ── Vista tablero / KPIs ──────────────────────────────────────────────────────
+
+async function loadTableroView() {
+  showLoading(true);
+  try {
+    yearTotals = await getYearTotals(currentUser.uid, 2026);
+    renderKpiCards(yearTotals);
+    renderFunnelChart('chart-funnel', yearTotals);
+    renderMonthlyBarsChart('chart-top5', monthlyTotals.length > 0 ? monthlyTotals : await getMonthlyTotals(currentUser.uid, 2026),
+      ['reunionesVerdes', 'preListing', 'preBuying', 'reservas', 'cierresVenta']);
+  } finally {
+    showLoading(false);
+  }
+}
+
+function renderKpiCards(totals) {
+  const kpis = [
+    { id: 'kpi-reuniones-total', label: 'Reuniones Verdes', key: 'reunionesVerdes', color: '#27ae60' },
+    { id: 'kpi-prelisting-total', label: 'Pre-Listing', key: 'preListing', color: '#003DA5' },
+    { id: 'kpi-reservas-total', label: 'Reservas', key: 'reservas', color: '#b7791f' },
+    { id: 'kpi-cierres-total', label: 'Cierres Totales', keyFn: t => (t.cierresVenta||0)+(t.cierresCompra||0), color: '#CC0000' },
+  ];
+
+  const container = document.getElementById('kpi-cards');
+  if (!container) return;
+
+  container.innerHTML = kpis.map(k => {
+    const val = k.keyFn ? k.keyFn(totals) : (totals[k.key] || 0);
+    return `
+      <div class="kpi-card" style="border-top: 3px solid ${k.color}">
+        <div class="kpi-value" style="color:${k.color}">${val}</div>
+        <div class="kpi-label">${k.label}</div>
+        <div class="kpi-sub">Acumulado 2026</div>
+      </div>
+    `;
+  }).join('');
+
+  // Tasas de conversión
+  const convContainer = document.getElementById('conversion-rates');
+  if (!convContainer) return;
+
+  const rows = [
+    { from: 'reunionesVerdes', to: 'preListing', label: 'Reuniones → Pre-Listing' },
+    { from: 'preListing', to: 'preBuying', label: 'Pre-Listing → Pre-Buying' },
+    { from: 'preBuying', to: 'reservas', label: 'Pre-Buying → Reservas' },
+    { from: 'reservas', to: 'cierresVenta', label: 'Reservas → Cierre Venta' },
+    { from: 'reunionesVerdes', to: 'cierresVenta', label: 'Reuniones → Cierre (global)' },
+  ];
+
+  convContainer.innerHTML = `
+    <table class="conversion-table">
+      <thead><tr><th>Tasa de conversión</th><th>Desde</th><th>Hasta</th><th>Tasa</th></tr></thead>
+      <tbody>
+        ${rows.map(r => `
+          <tr>
+            <td>${r.label}</td>
+            <td class="num-cell">${totals[r.from] || 0}</td>
+            <td class="num-cell">${totals[r.to] || 0}</td>
+            <td class="num-cell rate-cell">${calcConversion(totals[r.from], totals[r.to])}</td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+  `;
+}
+
+// ── Carga de datos de fondo ───────────────────────────────────────────────────
+
+async function loadBackgroundData() {
+  try {
+    monthlyTotals = await getMonthlyTotals(currentUser.uid, 2026);
+    yearTotals    = await getYearTotals(currentUser.uid, 2026);
+    if (activeSection === 'mensual')  { renderMonthlySummaryTable(); renderMonthlyChart(activeMonthlyMetric); }
+    if (activeSection === 'tablero') { renderKpiCards(yearTotals); }
+    renderWeekTotals();
+  } catch(e) { console.warn('Error cargando datos de fondo:', e); }
+}
