@@ -18,6 +18,7 @@ async function initApp(user, profile) {
   document.getElementById('broker-initials').textContent = getInitials(profile.nombre);
 
   bindBrokerNav();
+  initMobileMenu();
   document.getElementById('btn-logout').addEventListener('click', logoutUser);
 
   showLoading(true);
@@ -51,7 +52,14 @@ function showBrokerSection(section) {
 // ── Carga de datos ────────────────────────────────────────────────────────────
 
 async function loadAllUsers() {
-  allUsers   = await getAllUsers();
+  try {
+    allUsers = await getAllUsers();
+  } catch(e) {
+    console.error('Error cargando usuarios:', e);
+    showToast('Error al cargar usuarios. Verificá las reglas de Firestore.', 'error');
+    allUsers = [];
+  }
+
   agentUsers = allUsers.filter(u => u.role === 'agent');
 
   const year = 2026;

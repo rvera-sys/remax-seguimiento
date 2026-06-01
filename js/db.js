@@ -23,8 +23,11 @@ async function updateUserRole(targetUid, role, brokerUid) {
 
 // Obtener todos los usuarios (solo para brokers, las Security Rules lo protegen)
 async function getAllUsers() {
-  const snap = await db.collection('users').orderBy('nombre').get();
-  return snap.docs.map(d => ({ uid: d.id, ...d.data() }));
+  // Sin orderBy para evitar requerir índice compuesto en Firestore
+  const snap = await db.collection('users').get();
+  const users = snap.docs.map(d => ({ uid: d.id, ...d.data() }));
+  // Ordenar localmente por nombre
+  return users.sort((a, b) => (a.nombre || '').localeCompare(b.nombre || '', 'es'));
 }
 
 async function getPendingUsers() {

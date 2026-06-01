@@ -16,6 +16,7 @@
     </div>
   </div>
   <button class="hamburger-btn" id="hamburger-btn" title="Menú">☰</button>
+  <button class="hamburger-btn" id="hamburger-btn" title="Menú">☰</button>
   <div class="header-divider"></div>
   <span class="header-app-name">Seguimiento Comercial 2026</span>
   <div class="header-spacer"></div>
@@ -152,25 +153,36 @@
         </div>
       </div>
 
-      <!-- Tabs auto / manual -->
-      <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:6px;">
-        <div class="metric-tabs">
-          <button class="metric-tab active" data-tab="auto">Actividades comerciales</button>
-          <button class="metric-tab"        data-tab="manual">Marketing y captación</button>
+      <!-- ── VISTA DESKTOP: tabla completa ──────────────────── -->
+      <div class="desktop-only">
+        <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:6px;">
+          <div class="metric-tabs">
+            <button class="metric-tab active" data-tab="auto">Actividades comerciales</button>
+            <button class="metric-tab"        data-tab="manual">Marketing y captación</button>
+          </div>
+          <div id="btn-save-week" class="btn btn-save" style="cursor:pointer">Guardar semana —</div>
         </div>
-        <div id="btn-save-week" class="btn btn-save" style="cursor:pointer">Guardar semana —</div>
+        <div class="metric-tab-hint" id="tab-hint">
+          🗓️ <strong>Actividades comerciales</strong>: reuniones, listings, buyings, reservas y cierres.
+        </div>
+        <div class="table-wrapper">
+          <table id="week-table">
+            <thead><tr id="week-thead-row"></tr></thead>
+            <tbody id="week-tbody"></tbody>
+          </table>
+        </div>
       </div>
 
-      <div class="metric-tab-hint" id="tab-hint">
-        🗓️ <strong>Actividades comerciales</strong>: reuniones, listings, buyings, reservas y cierres. Estos datos se pueden sincronizar con Google Calendar.
+      <!-- ── VISTA MOBILE: pills + stepper ───────────────── -->
+      <div class="mobile-only">
+        <div class="day-pills" id="day-pills"></div>
+        <div id="mobile-day-card"></div>
       </div>
 
-      <!-- Tabla semanal -->
-      <div class="table-wrapper">
-        <table id="week-table">
-          <thead><tr id="week-thead-row"></tr></thead>
-          <tbody id="week-tbody"></tbody>
-        </table>
+      <!-- Barra de guardado sticky (mobile) -->
+      <div class="mobile-save-bar" id="mobile-save-bar">
+        <div class="mobile-day-summary" id="mobile-save-summary">Sin cambios</div>
+        <button class="btn btn-primary btn-sm" id="btn-save-mobile">Guardar</button>
       </div>
 
     </section>
@@ -259,6 +271,21 @@
   </main>
 </div>
 
+<!-- Bottom Navigation (mobile) -->
+<nav class="bottom-nav">
+  <div class="bottom-nav-items">
+    <div class="bottom-nav-item active" data-section="semana" onclick="showSection('semana');setBottomNav(this)">
+      <span class="bnav-icon">📅</span>Semana
+    </div>
+    <div class="bottom-nav-item" data-section="mensual" onclick="showSection('mensual');setBottomNav(this)">
+      <span class="bnav-icon">📊</span>Mensual
+    </div>
+    <div class="bottom-nav-item" data-section="tablero" onclick="showSection('tablero');setBottomNav(this)">
+      <span class="bnav-icon">🏆</span>Tablero
+    </div>
+  </div>
+</nav>
+
 <!-- Toast & Loading -->
 <div id="toast-container"></div>
 <div id="loading-overlay">
@@ -279,6 +306,7 @@
 <script src="js/charts.js"></script>
 <script src="js/parser.js"></script>
 <script src="js/voice.js"></script>
+<script src="js/mobile.js"></script>
 <script src="js/agent-app.js"></script>
 
 <script>

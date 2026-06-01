@@ -31,6 +31,19 @@ async function initApp(user, profile) {
   showLoading(false);
 
   initVoice();
+  initMobileMenu();
+
+  // Botón guardar mobile
+  document.getElementById('btn-save-mobile')?.addEventListener('click', async () => {
+    await saveWeek();
+    renderMobileView();
+  });
+
+  // Re-render al rotar pantalla
+  window.addEventListener('resize', () => {
+    if (isMobile()) renderMobileView(); else renderWeekTable();
+  });
+
   loadBackgroundData();
 }
 
@@ -102,7 +115,11 @@ async function loadWeekView(weekNum) {
 
   currentWeekData = await getWeekData(currentUser.uid, weekNum);
   pendingChanges  = {};
-  renderWeekTable();
+  if (isMobile()) {
+    renderMobileView();
+  } else {
+    renderWeekTable();
+  }
   renderWeekTotals();
 }
 
@@ -392,6 +409,126 @@ function renderKpiCards(totals) {
       </tbody>
     </table>
   `;
+}
+
+// ── Vista móvil: pills + steppers ────────────────────────────────────────────
+
+let mobileDayIndex = new Date().getDay() === 0 ? 6 : new Date().getDay() - 1; // 0=Lunes
+
+function isMobile() { return window.innerWidth <= 768; }
+
+function renderMobileView() {
+  if (!isMobile()) return;
+  renderDayPills();
+  renderMobileDayCard(mobileDayIndex);
+}
+
+function renderDayPills() {
+  const pills   = document.getElementById('day-pills');
+  if (!pills) return;
+  const days    = getWeekDays(currentWeekNum);
+  const todayKey = dateToKey(new Date());
+
+  pills.innerHTML = days.map((date, i) => {
+    const key      = dateToKey(date);
+    const dayData  = { ...(currentWeekData[key] || emptyDay()), ...(pendingChanges[key] || {}) };
+    const hasData  = METRICS_KEYS.some(k => (dayData[k] || 0) > 0);
+    const isToday  = key === todayKey;
+    const isActive = i === mobileDayIndex;
+
+    return `<div class="day-pill ${isActive ? 'active' : ''} ${isToday ? 'today' : ''} ${hasData ? 'has-data' : ''}"
+      onclick="selectMobileDay(${i})">
+      <span class="day-pill-name">${DIAS_ES[i].substring(0, 3)}</span>
+      <span class="day-pill-num">${date.getDate()}</span>
+    </div>`;
+  }).join('');
+}
+
+function selectMobileDay(idx) {
+  mobileDayIndex = idx;
+  renderDayPills();
+  renderMobileDayCard(idx);
+}
+
+function renderMobileDayCard(dayIdx) {
+  const card  = document.getElementById('mobile-day-card');
+  if (!card) return;
+  const days  = getWeekDays(currentWeekNum);
+  const date  = days[dayIdx];
+  const key   = dateToKey(date);
+  const data  = { ...(currentWeekData[key] || emptyDay()), ...(pendingChanges[key] || {}) };
+  const todayKey = dateToKey(new Date());
+  const isToday  = key === todayKey;
+  const total    = METRICS_KEYS.reduce((s, k) => s + (parseInt(data[k]) || 0), 0);
+
+  card.innerHTML = `
+    <div class="mobile-day-card">
+      <div class="mobile-day-card-header">
+        <div>
+          <div class="mobile-day-title">${DIAS_ES[dayIdx]} ${isToday ? '· Hoy' : ''}</div>
+          <div class="mobile-day-date">${formatDate(date)}</div>
+        </div>
+        <div class="mobile-day-total-badge">${total} actividades</div>
+      </div>
+
+      <div class="metric-group-title">⚡ Actividades comerciales</div>
+      ${METRICS_AUTO.map(m => renderMetricRow(m, data[m.key] || 0, key)).join('')}
+
+      <div class="metric-group-title">✍️ Marketing y captación</div>
+      ${METRICS_MANUAL.map(m => renderMetricRow(m, data[m.key] || 0, key)).join('')}
+    </div>
+  `;
+
+  // Bind steppers
+  card.querySelectorAll('.stepper-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const metKey  = this.dataset.key;
+      const dateKey = this.dataset.date;
+      const delta   = this.dataset.delta === '1' ? 1 : -1;
+      const valEl   = document.getElementById(`sv-${dateKey}-${metKey}`);
+      const current = parseInt(valEl?.textContent) || 0;
+      const newVal  = Math.max(0, current + delta);
+
+      if (valEl) {
+        valEl.textContent = newVal;
+        valEl.classList.toggle('has-value', newVal > 0);
+      }
+
+      if (!pendingChanges[dateKey]) pendingChanges[dateKey] = {};
+      pendingChanges[dateKey][metKey] = newVal;
+
+      updateMobileSaveSummary(dateKey);
+      renderDayPills();
+    });
+  });
+}
+
+function renderMetricRow(metric, value, dateKey) {
+  return `
+    <div class="metric-row">
+      <span class="metric-row-dot" style="background:${metric.color}"></span>
+      <span class="metric-row-label">${metric.label}</span>
+      <div class="stepper">
+        <button class="stepper-btn minus" data-key="${metric.key}" data-date="${dateKey}" data-delta="-1">−</button>
+        <span class="stepper-val ${value > 0 ? 'has-value' : ''}" id="sv-${dateKey}-${metric.key}">${value}</span>
+        <button class="stepper-btn plus"  data-key="${metric.key}" data-date="${dateKey}" data-delta="1">+</button>
+      </div>
+    </div>`;
+}
+
+function updateMobileSaveSummary(dateKey) {
+  const el = document.getElementById('mobile-save-summary');
+  if (!el) return;
+  const changes = pendingChanges[dateKey] || {};
+  const count   = Object.values(changes).filter(v => v > 0).length;
+  el.textContent = count > 0
+    ? `${count} métrica${count > 1 ? 's' : ''} modificada${count > 1 ? 's' : ''} — sin guardar`
+    : 'Sin cambios';
+}
+
+function setBottomNav(el) {
+  document.querySelectorAll('.bottom-nav-item').forEach(i => i.classList.remove('active'));
+  el.classList.add('active');
 }
 
 // ── Módulo de voz ────────────────────────────────────────────────────────────
