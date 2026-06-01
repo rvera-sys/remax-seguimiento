@@ -7,21 +7,32 @@ function initMobileMenu() {
 
   if (!hamburger || !sidebar) return;
 
-  hamburger.addEventListener('click', toggleSidebar);
+  // Remover listeners previos clonando el botón
+  const newBtn = hamburger.cloneNode(true);
+  hamburger.parentNode.replaceChild(newBtn, hamburger);
+
+  newBtn.addEventListener('click', toggleSidebar);
   overlay?.addEventListener('click', closeSidebar);
 
-  // Cerrar sidebar al seleccionar sección en mobile
   document.querySelectorAll('.nav-item[data-section]').forEach(item => {
     item.addEventListener('click', () => {
       if (window.innerWidth <= 768) closeSidebar();
     });
   });
 
-  // Cerrar con tecla Escape
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape') closeSidebar();
   });
 }
+
+// Auto-iniciar cuando el DOM esté listo (por si initApp tarda)
+document.addEventListener('DOMContentLoaded', () => {
+  const hamburger = document.getElementById('hamburger-btn');
+  if (hamburger) {
+    hamburger.addEventListener('click', toggleSidebar);
+    document.getElementById('sidebar-overlay')?.addEventListener('click', closeSidebar);
+  }
+});
 
 function toggleSidebar() {
   const sidebar = document.querySelector('.sidebar');

@@ -35,6 +35,15 @@
 
   <!-- SIDEBAR -->
   <nav class="sidebar">
+
+    <!-- Aprobaciones pendientes (visible directo en sidebar mobile) -->
+    <div id="sidebar-pending-box" style="display:none; margin:10px 10px 4px; background:#fffbeb; border:1px solid #fde68a; border-radius:8px; padding:10px 12px;">
+      <div style="font-size:0.72rem;font-weight:700;color:#92400e;margin-bottom:8px;display:flex;align-items:center;gap:6px;">
+        ⏳ Pendientes de activación
+      </div>
+      <div id="sidebar-pending-list"></div>
+    </div>
+
     <div class="sidebar-section">
       <div class="sidebar-label">Vista general</div>
       <div class="nav-item active" data-section="panel">
@@ -77,6 +86,18 @@
         <button class="btn btn-outline btn-sm" onclick="location.reload()">↺ Actualizar</button>
       </div>
 
+      <!-- Banner pendientes (solo desktop, se oculta en mobile) -->
+      <div id="panel-pending-banner" class="desktop-only" style="display:none; background:#fffbeb; border:1px solid #fde68a; border-radius:10px; padding:14px 18px; margin-bottom:20px; display:flex; align-items:center; justify-content:space-between; gap:16px;">
+        <div style="display:flex;align-items:center;gap:10px">
+          <span style="font-size:1.4rem">⏳</span>
+          <div>
+            <div style="font-weight:700;color:#92400e;font-size:0.9rem" id="panel-pending-title">Tenés agentes pendientes de activación</div>
+            <div style="font-size:0.8rem;color:#b45309" id="panel-pending-names"></div>
+          </div>
+        </div>
+        <button class="btn btn-warning btn-sm" onclick="showBrokerSection('gestion')">Gestionar →</button>
+      </div>
+
       <div class="kpi-grid" id="team-kpi-cards"></div>
 
       <div class="grid-2 mb-24">
@@ -94,11 +115,11 @@
             <table>
               <thead>
                 <tr>
-                  <th style="width:40px">#</th>
+                  <th style="width:36px">#</th>
                   <th style="text-align:left">Agente</th>
-                  <th>Reuniones</th>
-                  <th>Pre-List</th>
-                  <th>Reservas</th>
+                  <th>Reun.</th>
+                  <th class="ranking-col-prelisting">Pre-List</th>
+                  <th class="ranking-col-reservas">Reservas</th>
                   <th>Cierres</th>
                   <th>Total</th>
                   <th></th>
@@ -302,6 +323,39 @@
 <script src="js/broker-app.js"></script>
 
 <script>
+  // Hamburger — bind inmediato al cargar el HTML
+  document.getElementById('hamburger-btn').addEventListener('click', function() {
+    const sidebar = document.querySelector('.sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    const isOpen  = sidebar.classList.contains('open');
+    if (isOpen) {
+      sidebar.classList.remove('open');
+      overlay.classList.remove('open');
+      this.textContent = '☰';
+    } else {
+      sidebar.classList.add('open');
+      overlay.classList.add('open');
+      this.textContent = '✕';
+    }
+  });
+
+  document.getElementById('sidebar-overlay').addEventListener('click', function() {
+    document.querySelector('.sidebar').classList.remove('open');
+    this.classList.remove('open');
+    document.getElementById('hamburger-btn').textContent = '☰';
+  });
+
+  // Cerrar sidebar al tocar una sección en mobile
+  document.querySelectorAll('.nav-item[data-section]').forEach(item => {
+    item.addEventListener('click', () => {
+      if (window.innerWidth <= 768) {
+        document.querySelector('.sidebar').classList.remove('open');
+        document.getElementById('sidebar-overlay').classList.remove('open');
+        document.getElementById('hamburger-btn').textContent = '☰';
+      }
+    });
+  });
+
   requireAuth('broker');
 
   // Cerrar modal con Escape

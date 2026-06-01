@@ -65,12 +65,9 @@ function showSection(section) {
   document.querySelectorAll('.nav-item').forEach(el => el.classList.toggle('active', el.dataset.section === section));
   document.querySelectorAll('.main-section').forEach(el => el.classList.toggle('active', el.id === 'section-' + section));
 
-  if (section === 'mensual' && Object.keys(monthlyTotals).length === 0) {
-    loadMonthlyView();
-  }
-  if (section === 'tablero' && yearTotals.reunionesVerdes === undefined) {
-    loadTableroView();
-  }
+  if (section === 'mensual') loadMonthlyView();
+  if (section === 'anual')   loadAnualView();
+  if (section === 'tablero') loadTableroView();
 }
 
 // ── Vista semanal ─────────────────────────────────────────────────────────────
@@ -255,8 +252,16 @@ function renderWeekTotals() {
 function updateSaveButton() {
   const btn = document.getElementById('btn-save-week');
   const hasPending = Object.keys(pendingChanges).length > 0;
-  btn.classList.toggle('has-changes', hasPending);
-  btn.textContent = hasPending ? `Guardar semana ${currentWeekNum} ●` : `Guardar semana ${currentWeekNum}`;
+  if (btn) {
+    btn.classList.toggle('has-changes', hasPending);
+    btn.textContent = hasPending ? `Guardar semana ${currentWeekNum} ●` : `Guardar semana ${currentWeekNum}`;
+  }
+  // Globo azul mobile
+  const wrap = document.getElementById('bnav-save-wrap');
+  if (wrap) wrap.style.display = hasPending ? 'flex' : 'none';
+  // Ocultar barra sticky vieja en mobile
+  const bar = document.getElementById('mobile-save-bar');
+  if (bar) bar.style.display = 'none';
 }
 
 async function saveWeek() {
@@ -298,13 +303,38 @@ async function saveWeek() {
 async function loadMonthlyView() {
   showLoading(true);
   try {
-    monthlyTotals = await getMonthlyTotals(currentUser.uid, 2026);
+    if (Object.keys(monthlyTotals).length === 0) {
+      monthlyTotals = await getMonthlyTotals(currentUser.uid, 2026);
+    }
+    const totalesAnio = sumDays(Object.values(monthlyTotals));
+
+    // KPI cards (igual que anual)
+    const kpiContainer = document.getElementById('mensual-kpi-cards');
+    if (kpiContainer) {
+      const cards = METRICS_AUTO.map(m => ({
+        label: m.label, val: totalesAnio[m.key] || 0, color: m.color
+      }));
+      const totalManual = METRICS_MANUAL.reduce((s, m) => s + (totalesAnio[m.key] || 0), 0);
+      cards.push({ label: 'Marketing total', val: totalManual, color: '#374151' });
+      kpiContainer.innerHTML = cards.map(c => `
+        <div class="kpi-card" style="border-top:3px solid ${c.color}">
+          <div class="kpi-value" style="color:${c.color}">${c.val}</div>
+          <div class="kpi-label">${c.label}</div>
+          <div class="kpi-sub">Acumulado 2026</div>
+        </div>`).join('');
+    }
+
+    // Tabla y gráfico
     renderMonthlySummaryTable();
     renderMonthlyChart(activeMonthlyMetric);
 
-    // Bind selector de métrica para el gráfico
+    // Gráfico barras top métricas
+    renderMonthlyBarsChart('chart-top5-monthly', monthlyTotals,
+      ['reunionesVerdes', 'preListing', 'preBuying', 'reservas', 'cierresVenta', 'cierresCompra']);
+
+    // Selector de métrica
     const sel = document.getElementById('monthly-metric-select');
-    if (sel) {
+    if (sel && sel.options.length === 0) {
       sel.innerHTML = METRICS_AUTO.map(m =>
         `<option value="${m.key}" ${m.key === activeMonthlyMetric ? 'selected' : ''}>${m.label}</option>`
       ).join('');
@@ -313,6 +343,35 @@ async function loadMonthlyView() {
         renderMonthlyChart(activeMonthlyMetric);
       });
     }
+
+    // Mejor mes (igual que anual)
+    const bestContainer = document.getElementById('mensual-best-months');
+    if (bestContainer) {
+      const metricsConDatos = METRICS_AUTO.filter(m => (totalesAnio[m.key] || 0) > 0);
+      if (metricsConDatos.length === 0) {
+        bestContainer.innerHTML = '<p style="color:var(--gray-400);font-style:italic">Sin datos suficientes aún.</p>';
+      } else {
+        bestContainer.innerHTML = `
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px">
+            ${metricsConDatos.map(m => {
+              const vals = Array.from({ length: 12 }, (_, i) => monthlyTotals[i]?.[m.key] || 0);
+              const maxVal = Math.max(...vals);
+              const bestIdx = maxVal > 0 ? vals.indexOf(maxVal) : -1;
+              const total = vals.reduce((s, v) => s + v, 0);
+              return `
+                <div style="background:var(--gray-50);border-radius:var(--radius);padding:12px 14px;border-left:3px solid ${m.color}">
+                  <div style="font-size:0.72rem;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">${m.label}</div>
+                  <div style="font-size:1.6rem;font-weight:800;color:${m.color};line-height:1">${total}</div>
+                  <div style="font-size:0.75rem;color:var(--gray-500);margin-top:4px">
+                    Mejor: <strong>${bestIdx >= 0 ? MESES_ES[bestIdx] : '—'}</strong> (${maxVal})
+                    &nbsp;·&nbsp; Prom: ${(total/12).toFixed(1)}/mes
+                  </div>
+                </div>`;
+            }).join('')}
+          </div>`;
+      }
+    }
+
   } finally {
     showLoading(false);
   }
@@ -324,18 +383,28 @@ function renderMonthlySummaryTable() {
   if (!thead || !tbody) return;
 
   thead.innerHTML = `<tr>
-    <th>Métrica</th>
+    <th style="text-align:left;min-width:130px">Métrica</th>
     ${MESES_ES.map(m => `<th>${m.substring(0,3)}</th>`).join('')}
-    <th>Total</th>
+    <th style="color:var(--blue)">Total</th>
+    <th>Mejor mes</th>
   </tr>`;
 
   tbody.innerHTML = METRICS.map(metric => {
-    const rowTotal = Object.values(monthlyTotals).reduce((s, m) => s + (m[metric.key] || 0), 0);
-    const cells = Array.from({ length: 12 }, (_, i) => `<td>${monthlyTotals[i] ? (monthlyTotals[i][metric.key] || 0) : 0}</td>`).join('');
+    const vals = Array.from({ length: 12 }, (_, i) => monthlyTotals[i]?.[metric.key] || 0);
+    const rowTotal = vals.reduce((s, v) => s + v, 0);
+    const maxVal = Math.max(...vals);
+    const bestIdx = maxVal > 0 ? vals.indexOf(maxVal) : -1;
+
+    const cells = vals.map((v, i) => {
+      const isMax = v === maxVal && maxVal > 0;
+      return `<td style="${isMax ? 'background:var(--blue-light);color:var(--blue);font-weight:700' : ''}">${v || ''}</td>`;
+    }).join('');
+
     return `<tr>
-      <td><span class="metric-dot" style="background:${metric.color}"></span>${metric.label}</td>
+      <td><span class="metric-dot" style="background:${metric.color}"></span><span style="font-size:0.82rem">${metric.label}</span></td>
       ${cells}
-      <td class="col-total"><strong>${rowTotal}</strong></td>
+      <td style="color:var(--blue);font-weight:700">${rowTotal || ''}</td>
+      <td style="font-size:0.78rem;color:var(--gray-500)">${bestIdx >= 0 ? MESES_ES[bestIdx].substring(0,3) : '—'}</td>
     </tr>`;
   }).join('');
 }
@@ -534,12 +603,21 @@ function setBottomNav(el) {
 // ── Módulo de voz ────────────────────────────────────────────────────────────
 
 function initVoice() {
+  // Puede haber mic en el panel de voz (desktop) o en el bottom nav (mobile)
   const micBtn = document.getElementById('mic-btn');
   if (!micBtn) return;
+
+  // Sync label del bottom nav
+  function syncMicLabel(recording) {
+    const label = document.getElementById('mic-status-label');
+    if (label) label.textContent = recording ? 'Parar' : 'Hablar';
+    if (label) label.style.color = recording ? 'var(--red)' : 'var(--blue)';
+  }
 
   micBtn.addEventListener('click', function() {
     if (isListening) {
       detenerVoz();
+      syncMicLabel(false);
       return;
     }
 
@@ -549,9 +627,10 @@ function initVoice() {
     ocultarResultadoVoz();
 
     const ok = iniciarVoz(
-      // onResult: se llama cuando el usuario para de hablar
       function(texto) {
-        document.getElementById('voice-transcript').classList.remove('show');
+        const tb = document.getElementById('voice-transcript');
+        if (tb) tb.classList.remove('show');
+        syncMicLabel(false);
         mostrarResultadoVoz(texto);
       },
       // onError
@@ -631,6 +710,135 @@ function aplicarVozAlDia() {
 function ocultarResultadoVoz() {
   const panel = document.getElementById('voice-result-panel');
   if (panel) panel.classList.remove('show');
+}
+
+// ── Resumen Anual ─────────────────────────────────────────────────────────────
+
+async function loadAnualView() {
+  showLoading(true);
+  try {
+    if (Object.keys(monthlyTotals).length === 0) {
+      monthlyTotals = await getMonthlyTotals(currentUser.uid, 2026);
+    }
+    yearTotals = sumDays(Object.values(monthlyTotals));
+
+    renderAnualKpiCards();
+    renderAnualCharts();
+    renderAnualTable();
+    renderMejoresMeses();
+  } finally {
+    showLoading(false);
+  }
+}
+
+function renderAnualKpiCards() {
+  const container = document.getElementById('anual-kpi-cards');
+  if (!container) return;
+
+  const cards = METRICS_AUTO.map(m => ({
+    label: m.label,
+    val: yearTotals[m.key] || 0,
+    color: m.color,
+  }));
+
+  // Agregar total manual
+  const totalManual = METRICS_MANUAL.reduce((s, m) => s + (yearTotals[m.key] || 0), 0);
+  cards.push({ label: 'Marketing total', val: totalManual, color: '#374151' });
+
+  container.innerHTML = cards.map(c => `
+    <div class="kpi-card" style="border-top:3px solid ${c.color}">
+      <div class="kpi-value" style="color:${c.color}">${c.val}</div>
+      <div class="kpi-label">${c.label}</div>
+      <div class="kpi-sub">Acumulado 2026</div>
+    </div>
+  `).join('');
+}
+
+function renderAnualCharts() {
+  // Selector de métrica
+  const sel = document.getElementById('anual-metric-select');
+  if (sel && sel.options.length === 0) {
+    sel.innerHTML = METRICS_AUTO.map(m =>
+      `<option value="${m.key}">${m.label}</option>`
+    ).join('');
+    sel.addEventListener('change', () => {
+      renderMonthlyLineChart('chart-anual-line', monthlyTotals, sel.value);
+    });
+  }
+  const metricKey = sel ? sel.value : 'reunionesVerdes';
+  renderMonthlyLineChart('chart-anual-line', monthlyTotals, metricKey);
+
+  // Barras top métricas
+  renderMonthlyBarsChart('chart-anual-bars', monthlyTotals,
+    ['reunionesVerdes', 'preListing', 'preBuying', 'reservas', 'cierresVenta', 'cierresCompra']);
+}
+
+function renderAnualTable() {
+  const thead = document.getElementById('anual-table-head');
+  const tbody = document.getElementById('anual-table-body');
+  if (!thead || !tbody) return;
+
+  thead.innerHTML = `<tr>
+    <th style="text-align:left;min-width:130px">Métrica</th>
+    ${MESES_ES.map(m => `<th>${m.substring(0,3)}</th>`).join('')}
+    <th style="color:var(--blue)">Total</th>
+    <th>Mejor mes</th>
+  </tr>`;
+
+  tbody.innerHTML = METRICS.map(metric => {
+    const vals = Array.from({ length: 12 }, (_, i) => monthlyTotals[i]?.[metric.key] || 0);
+    const total = vals.reduce((s, v) => s + v, 0);
+    const maxVal = Math.max(...vals);
+    const bestIdx = maxVal > 0 ? vals.indexOf(maxVal) : -1;
+
+    const cells = vals.map((v, i) => {
+      const isMax = v === maxVal && maxVal > 0;
+      return `<td style="${isMax ? 'background:var(--blue-light);color:var(--blue);font-weight:700' : ''}">${v || ''}</td>`;
+    }).join('');
+
+    return `<tr>
+      <td>
+        <span class="metric-dot" style="background:${metric.color}"></span>
+        <span style="font-size:0.82rem">${metric.label}</span>
+      </td>
+      ${cells}
+      <td style="color:var(--blue);font-weight:700">${total || ''}</td>
+      <td style="font-size:0.78rem;color:var(--gray-500)">${bestIdx >= 0 ? MESES_ES[bestIdx].substring(0,3) : '—'}</td>
+    </tr>`;
+  }).join('');
+}
+
+function renderMejoresMeses() {
+  const container = document.getElementById('anual-best-months');
+  if (!container) return;
+
+  const metricsConDatos = METRICS_AUTO.filter(m => (yearTotals[m.key] || 0) > 0);
+
+  if (metricsConDatos.length === 0) {
+    container.innerHTML = '<p style="color:var(--gray-400);font-style:italic">Sin datos suficientes aún.</p>';
+    return;
+  }
+
+  container.innerHTML = `
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px">
+      ${metricsConDatos.map(m => {
+        const vals = Array.from({ length: 12 }, (_, i) => monthlyTotals[i]?.[m.key] || 0);
+        const maxVal = Math.max(...vals);
+        const bestIdx = maxVal > 0 ? vals.indexOf(maxVal) : -1;
+        const total = vals.reduce((s, v) => s + v, 0);
+        const prom = (total / 12).toFixed(1);
+        return `
+          <div style="background:var(--gray-50);border-radius:var(--radius);padding:12px 14px;border-left:3px solid ${m.color}">
+            <div style="font-size:0.72rem;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">${m.label}</div>
+            <div style="font-size:1.6rem;font-weight:800;color:${m.color};line-height:1">${total}</div>
+            <div style="font-size:0.75rem;color:var(--gray-500);margin-top:4px">
+              Mejor: <strong>${bestIdx >= 0 ? MESES_ES[bestIdx] : '—'}</strong> (${maxVal})
+              &nbsp;·&nbsp; Promedio: ${prom}/mes
+            </div>
+          </div>`;
+      }).join('')}
+    </div>
+  `;
 }
 
 // ── Carga de datos de fondo ───────────────────────────────────────────────────

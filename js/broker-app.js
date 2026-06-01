@@ -72,6 +72,44 @@ async function loadAllUsers() {
   }));
 
   updatePendingBadge();
+  renderSidebarPending();
+}
+
+// Aprobaciones rápidas en el sidebar (mobile-first)
+function renderSidebarPending() {
+  const pending = allUsers.filter(u => u.role === 'agent' && u.active === false);
+  const box  = document.getElementById('sidebar-pending-box');
+  const list = document.getElementById('sidebar-pending-list');
+  if (!box || !list) return;
+
+  if (pending.length === 0) { box.style.display = 'none'; return; }
+  box.style.display = 'block';
+
+  list.innerHTML = pending.map(u => `
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid #fde68a;gap:6px;">
+      <span style="font-size:0.78rem;font-weight:600;color:#374151;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1">${escapeHtml(u.nombre)}</span>
+      <div style="display:flex;gap:4px;flex-shrink:0">
+        <button class="btn btn-sm btn-success" style="padding:4px 8px;font-size:0.72rem" onclick="activarDesdeSidebar('${u.uid}')">✓</button>
+        <button class="btn btn-sm btn-danger"  style="padding:4px 8px;font-size:0.72rem" onclick="rechazarDesdeSidebar('${u.uid}')">✕</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function activarDesdeSidebar(uid) {
+  await updateUserStatus(uid, true, brokerUser.uid);
+  const u = allUsers.find(x => x.uid === uid);
+  if (u) u.active = true;
+  renderSidebarPending();
+  updatePendingBadge();
+  if (typeof renderGestionSection === 'function') renderGestionSection();
+  showToast('Agente activado. ✅');
+}
+
+async function rechazarDesdeSidebar(uid) {
+  if (!confirm('¿Rechazar este agente?')) return;
+  await updateUserStatus(uid, false, brokerUser.uid);
+  showToast('Agente rechazado.', 'info');
 }
 
 function updatePendingBadge() {
@@ -82,7 +120,20 @@ function updatePendingBadge() {
 
 // ── Panel General ─────────────────────────────────────────────────────────────
 
+function renderPendingBanner() {
+  const pending = allUsers.filter(u => u.role === 'agent' && u.active === false);
+  const banner  = document.getElementById('panel-pending-banner');
+  if (!banner) return;
+  if (pending.length === 0) { banner.style.display = 'none'; return; }
+  banner.style.display = 'flex';
+  document.getElementById('panel-pending-title').textContent =
+    `${pending.length} agente${pending.length > 1 ? 's' : ''} pendiente${pending.length > 1 ? 's' : ''} de activación`;
+  document.getElementById('panel-pending-names').textContent =
+    pending.map(u => u.nombre).join(', ');
+}
+
 function renderPanelGeneral() {
+  renderPendingBanner();
   const activeAgents = agentUsers.filter(u => u.active !== false);
   const combined     = sumDays(activeAgents.map(a => teamTotals[a.uid] || emptyDay()));
 
@@ -124,8 +175,8 @@ function renderPanelGeneral() {
         </div>
       </td>
       <td>${teamTotals[agent.uid]?.reunionesVerdes || 0}</td>
-      <td>${teamTotals[agent.uid]?.preListing || 0}</td>
-      <td>${teamTotals[agent.uid]?.reservas || 0}</td>
+      <td class="ranking-col-prelisting">${teamTotals[agent.uid]?.preListing || 0}</td>
+      <td class="ranking-col-reservas">${teamTotals[agent.uid]?.reservas || 0}</td>
       <td>${(teamTotals[agent.uid]?.cierresVenta||0)+(teamTotals[agent.uid]?.cierresCompra||0)}</td>
       <td><strong>${agent.total}</strong></td>
       <td>

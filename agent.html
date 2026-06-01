@@ -17,7 +17,6 @@
     </div>
   </div>
   <button class="hamburger-btn" id="hamburger-btn" title="Menú">☰</button>
-  <button class="hamburger-btn" id="hamburger-btn" title="Menú">☰</button>
   <div class="header-divider"></div>
   <span class="header-app-name">Seguimiento Comercial 2026</span>
   <div class="header-spacer"></div>
@@ -46,6 +45,9 @@
       <div class="sidebar-label">Análisis</div>
       <div class="nav-item" data-section="mensual">
         <span class="nav-icon">📊</span> Resumen mensual
+      </div>
+      <div class="nav-item" data-section="anual">
+        <span class="nav-icon">📆</span> Resumen anual
       </div>
       <div class="nav-item" data-section="tablero">
         <span class="nav-icon">🏆</span> Mi tablero KPI
@@ -194,10 +196,14 @@
       <div class="section-header">
         <div>
           <div class="section-title">Resumen mensual 2026</div>
-          <div class="section-subtitle">Totales acumulados por mes para cada actividad</div>
+          <div class="section-subtitle">Actividades por mes — totales, evolución y comparativa</div>
         </div>
       </div>
 
+      <!-- KPI cards totales del año (misma vista que anual) -->
+      <div class="kpi-grid" id="mensual-kpi-cards"></div>
+
+      <!-- Gráficos -->
       <div class="grid-2 mb-24">
         <div class="chart-card">
           <div class="chart-card-title">
@@ -209,22 +215,90 @@
           </div>
         </div>
         <div class="chart-card">
-          <div class="chart-card-title">Top 5 métricas clave</div>
+          <div class="chart-card-title">Top métricas acumuladas</div>
           <div class="chart-container chart-container-md">
             <canvas id="chart-top5-monthly"></canvas>
           </div>
         </div>
       </div>
 
-      <div class="card">
+      <!-- Tabla comparativa mes a mes -->
+      <div class="card mb-24">
         <div class="card-header">
-          <div class="card-title">📋 Detalle mensual completo</div>
+          <div class="card-title">📋 Comparativa mes a mes</div>
         </div>
         <div style="overflow-x:auto">
           <table class="monthly-table">
             <thead id="monthly-thead"></thead>
             <tbody id="monthly-tbody"></tbody>
           </table>
+        </div>
+      </div>
+
+      <!-- Mejor mes por métrica -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">🥇 Mejor mes por actividad</div>
+        </div>
+        <div class="card-body">
+          <div id="mensual-best-months"></div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ── SECCIÓN: RESUMEN ANUAL ──────────────────────────────── -->
+    <section id="section-anual" class="main-section">
+
+      <div class="section-header">
+        <div>
+          <div class="section-title">Resumen anual 2026</div>
+          <div class="section-subtitle">Totales acumulados, evolución y comparativa mensual</div>
+        </div>
+      </div>
+
+      <!-- KPI totales año -->
+      <div class="kpi-grid" id="anual-kpi-cards"></div>
+
+      <!-- Gráfico evolución + tabla comparativa -->
+      <div class="grid-2 mb-24">
+        <div class="chart-card">
+          <div class="chart-card-title">
+            Evolución mensual
+            <select id="anual-metric-select" class="form-input" style="width:auto;padding:4px 10px;font-size:0.8rem"></select>
+          </div>
+          <div class="chart-container chart-container-md">
+            <canvas id="chart-anual-line"></canvas>
+          </div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-card-title">Top métricas acumuladas</div>
+          <div class="chart-container chart-container-md">
+            <canvas id="chart-anual-bars"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabla comparativa mes a mes -->
+      <div class="card mb-24">
+        <div class="card-header">
+          <div class="card-title">📋 Comparativa mes a mes — todas las métricas</div>
+        </div>
+        <div style="overflow-x:auto">
+          <table class="monthly-table">
+            <thead id="anual-table-head"></thead>
+            <tbody id="anual-table-body"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Mejor y peor mes por métrica -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">🥇 Mejor mes por actividad</div>
+        </div>
+        <div class="card-body">
+          <div id="anual-best-months"></div>
         </div>
       </div>
 
@@ -281,8 +355,30 @@
     <div class="bottom-nav-item" data-section="mensual" onclick="showSection('mensual');setBottomNav(this)">
       <span class="bnav-icon">📊</span>Mensual
     </div>
+    <div class="bnav-save-wrap" id="bnav-save-wrap" style="display:none">
+      <button class="bnav-save-btn" id="btn-save-mobile" title="Guardar cambios">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+      </button>
+      <div class="bottom-nav-item" data-section="anual" onclick="showSection('anual');setBottomNav(this)">
+        <span class="bnav-icon">📆</span>Anual
+      </div>
+    </div>
     <div class="bottom-nav-item" data-section="tablero" onclick="showSection('tablero');setBottomNav(this)">
       <span class="bnav-icon">🏆</span>Tablero
+    </div>
+    <!-- Botón globo micrófono — derecha de Tablero -->
+    <div class="bnav-mic-wrap">
+      <button class="bnav-mic-btn mic-btn mic-idle" id="mic-btn" title="Cargar con voz">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2a3 3 0 0 1 3 3v7a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3z"/>
+          <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+          <line x1="12" y1="19" x2="12" y2="22"/>
+          <line x1="8"  y1="22" x2="16" y2="22"/>
+        </svg>
+      </button>
+      <span class="bnav-mic-label" id="mic-status-label">Hablar</span>
     </div>
   </div>
 </nav>
@@ -311,6 +407,38 @@
 <script src="js/agent-app.js"></script>
 
 <script>
+  // Hamburger — bind inmediato
+  document.getElementById('hamburger-btn').addEventListener('click', function() {
+    const sidebar = document.querySelector('.sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    const isOpen  = sidebar.classList.contains('open');
+    if (isOpen) {
+      sidebar.classList.remove('open');
+      overlay.classList.remove('open');
+      this.textContent = '☰';
+    } else {
+      sidebar.classList.add('open');
+      overlay.classList.add('open');
+      this.textContent = '✕';
+    }
+  });
+
+  document.getElementById('sidebar-overlay').addEventListener('click', function() {
+    document.querySelector('.sidebar').classList.remove('open');
+    this.classList.remove('open');
+    document.getElementById('hamburger-btn').textContent = '☰';
+  });
+
+  document.querySelectorAll('.nav-item[data-section]').forEach(item => {
+    item.addEventListener('click', () => {
+      if (window.innerWidth <= 768) {
+        document.querySelector('.sidebar').classList.remove('open');
+        document.getElementById('sidebar-overlay').classList.remove('open');
+        document.getElementById('hamburger-btn').textContent = '☰';
+      }
+    });
+  });
+
   requireAuth('agent');
 
   // Hint dinámico según tab activo
