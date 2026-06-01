@@ -392,6 +392,13 @@ function renderUserTable() {
               ? `<button class="btn btn-sm btn-outline" onclick="toggleUserRole('${u.uid}', 'agent')">↓ Bajar</button>`
               : ''
           }
+          ${u.role === 'agent' ? `
+            <button class="btn btn-sm ${u.planEnabled ? 'btn-danger' : 'btn-outline'}"
+              style="${u.planEnabled ? '' : 'color:#7c3aed;border-color:#7c3aed'}"
+              onclick="togglePlanAccess('${u.uid}', ${!u.planEnabled})"
+              title="${u.planEnabled ? 'Deshabilitar plan estratégico' : 'Habilitar plan estratégico'}">
+              🎯 ${u.planEnabled ? 'Quitar plan' : 'Habilitar plan'}
+            </button>` : ''}
         </div>
       </td>
     </tr>
@@ -424,6 +431,16 @@ async function toggleUserActive(uid, active) {
   showToast(`Usuario ${active ? 'activado' : 'suspendido'}.`);
 }
 
+async function togglePlanAccess(uid, enabled) {
+  const accion = enabled ? 'habilitar' : 'deshabilitar';
+  if (!confirm(`¿Querés ${accion} el Plan Estratégico para este agente?`)) return;
+  await togglePlanEnabled(uid, enabled, brokerUser.uid);
+  const u = allUsers.find(x => x.uid === uid);
+  if (u) u.planEnabled = enabled;
+  renderGestionSection();
+  showToast(`Plan estratégico ${enabled ? 'habilitado ✅' : 'deshabilitado'} para ${u?.nombre || 'el agente'}.`);
+}
+
 async function toggleUserRole(uid, newRole) {
   const label = newRole === 'broker' ? 'promover a Broker' : 'bajar a Agente';
   if (!confirm(`¿Querés ${label} a este usuario?`)) return;
@@ -447,6 +464,8 @@ async function loadAndRenderAuditoria() {
     disable_agent:     '🔴 Agente suspendido',
     promote_to_broker: '⬆️ Promovido a Broker',
     demote_to_agent:   '⬇️ Bajado a Agente',
+    plan_enabled:      '🎯 Plan estratégico habilitado',
+    plan_disabled:     '🚫 Plan estratégico deshabilitado',
   };
 
   tbody.innerHTML = logs.map(log => {

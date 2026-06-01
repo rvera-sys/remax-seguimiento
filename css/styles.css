@@ -487,10 +487,16 @@ input, button, select, textarea { font-family: var(--font); }
 .mobile-day-card-header {
   background: linear-gradient(135deg, var(--blue-dark) 0%, var(--blue) 100%);
   color: var(--white);
-  padding: 14px 18px;
+  padding: 14px 18px 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.mobile-day-card-header > div:first-child,
+.mobile-day-card-header > div:nth-child(2) {
+  padding-bottom: 10px;
 }
 .mobile-day-title { font-size: 1rem; font-weight: 700; }
 .mobile-day-date  { font-size: 0.78rem; color: rgba(255,255,255,.7); }

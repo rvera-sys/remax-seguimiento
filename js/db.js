@@ -16,6 +16,11 @@ async function updateUserStatus(targetUid, active, brokerUid) {
   await logAudit(brokerUid, targetUid, active ? 'enable_agent' : 'disable_agent');
 }
 
+async function togglePlanEnabled(targetUid, enabled, brokerUid) {
+  await db.collection('users').doc(targetUid).update({ planEnabled: enabled });
+  await logAudit(brokerUid, targetUid, enabled ? 'plan_enabled' : 'plan_disabled');
+}
+
 async function updateUserRole(targetUid, role, brokerUid) {
   await db.collection('users').doc(targetUid).update({ role });
   await logAudit(brokerUid, targetUid, role === 'broker' ? 'promote_to_broker' : 'demote_to_agent');
@@ -114,6 +119,47 @@ async function getTeamMonthlyTotals(agentUids, year) {
     results[uid] = await getMonthlyTotals(uid, year);
   }));
   return results;
+}
+
+// ── Targets del plan estratégico ─────────────────────────────────────────────
+
+async function getPlanTargets(uid) {
+  try {
+    const snap = await db.collection('tracking').doc(uid)
+      .collection('plan').doc('estrategico').get();
+    if (!snap.exists) return null;
+    const d = snap.data();
+
+    const tc            = d.plan?.tcDolar      || 1200;
+    const txPromedio    = d.plan?.txPromedio    || 2600;
+    const ratioReservas = d.plan?.ratioReservas || 1.2;
+
+    const gastosMes    = Object.values(d.gastos     || {}).reduce((a,b) => a + (Number(b)||0), 0);
+    const operativosMes= Object.values(d.operativos || {}).reduce((a,b) => a + (Number(b)||0), 0);
+    const objetivosUSD = (d.objetivos || []).reduce((a,o) => a + (Number(o.monto)||0), 0);
+
+    const metaTotal       = (gastosMes * 12 / tc) + (operativosMes * 12 / tc) + objetivosUSD;
+    const comisionesBrutas= metaTotal / 0.45;
+    const txNec           = txPromedio > 0 ? Math.ceil(comisionesBrutas / txPromedio) : 0;
+    const reservasAnual   = Math.ceil(txNec * ratioReservas);
+    const captacionesMes  = 3;
+    const aperturasMes    = captacionesMes * 3;
+    const procesosSemana  = Math.ceil(aperturasMes / 4);
+    const reunionesSemana = procesosSemana * 5;
+
+    return {
+      reunionesVerdes:  reunionesSemana,
+      preListing:       procesosSemana,
+      captaciones:      captacionesMes,           // meta mensual
+      reservas:         Math.ceil(reservasAnual / 52), // meta semanal
+      cierresVenta:     Math.ceil(txNec / 52),
+      comisionesBrutas, txNec, reservasAnual,
+      tieneplan: metaTotal > 0,
+    };
+  } catch(e) {
+    console.warn('[Plan] Sin plan estratégico cargado:', e.message);
+    return null;
+  }
 }
 
 // ── Audit log ────────────────────────────────────────────────────────────────

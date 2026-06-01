@@ -53,6 +53,13 @@
         <span class="nav-icon">🏆</span> Mi tablero KPI
       </div>
     </div>
+    <!-- Plan estratégico: visible solo si broker lo habilitó -->
+    <div class="sidebar-section nav-plan" style="display:none">
+      <div class="sidebar-label">Mi plan</div>
+      <div class="nav-item" data-section="plan">
+        <span class="nav-icon">🎯</span> Plan estratégico
+      </div>
+    </div>
   </nav>
   <div class="sidebar-overlay" id="sidebar-overlay"></div>
 
@@ -380,6 +387,11 @@
     </div>
     <div class="bottom-nav-item" data-section="tablero" onclick="showSection('tablero');setBottomNav(this)">
       <span class="bnav-icon">🏆</span>Tablero
+    </div>
+    <!-- Plan: visible solo si broker lo habilitó -->
+    <div class="bottom-nav-item bnav-plan" data-section="plan"
+         onclick="showSection('plan');setBottomNav(this)" style="display:none">
+      <span class="bnav-icon">🎯</span>Plan
     </div>
     <!-- Botón globo micrófono — derecha de Tablero -->
     <div class="bnav-mic-wrap">

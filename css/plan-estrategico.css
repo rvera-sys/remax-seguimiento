@@ -1,0 +1,462 @@
+/* ══════════════════════════════════════════════════════════════════
+   plan-estrategico.css  —  Estilos del módulo Plan Estratégico
+   Agregar al final de css/styles.css (o importar como hoja separada)
+   ══════════════════════════════════════════════════════════════════ */
+
+/* ── Layout general de la sección ───────────────────────────────── */
+#section-plan .pe-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  margin-bottom: 20px;
+}
+@media (max-width: 768px) {
+  #section-plan .pe-grid-2 { grid-template-columns: 1fr; }
+}
+
+/* ── Cards base ──────────────────────────────────────────────────── */
+.pe-card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 20px 22px;
+  margin-bottom: 18px;
+}
+.pe-card-title {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: #6b7280;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ── Resumen de metas (4 KPI cards arriba) ───────────────────────── */
+.pe-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+  margin-bottom: 22px;
+}
+.pe-summary-card {
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 14px 16px;
+}
+.pe-summary-card.highlight {
+  background: #EEF2FF;
+  border-color: #c7d2fe;
+}
+.pe-summary-label {
+  font-size: 0.72rem;
+  color: #6b7280;
+  margin-bottom: 4px;
+}
+.pe-summary-value {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #111827;
+}
+.pe-summary-card.highlight .pe-summary-value { color: #003DA5; }
+.pe-summary-sub {
+  font-size: 0.68rem;
+  color: #9ca3af;
+  margin-top: 2px;
+}
+
+/* ── Formulario de gastos ────────────────────────────────────────── */
+.pe-form-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.pe-form-table tr td {
+  padding: 6px 4px;
+  font-size: 0.84rem;
+  vertical-align: middle;
+}
+.pe-form-table tr td:first-child {
+  color: #374151;
+  width: 60%;
+}
+.pe-form-table tr td:last-child {
+  width: 40%;
+}
+.pe-form-table input[type=number] {
+  width: 100%;
+  padding: 6px 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 7px;
+  font-size: 0.85rem;
+  background: #f9fafb;
+  color: #111827;
+  text-align: right;
+  transition: border-color .15s;
+}
+.pe-form-table input[type=number]:focus {
+  outline: none;
+  border-color: #003DA5;
+  background: #fff;
+}
+.pe-total-row td {
+  border-top: 1.5px solid #e5e7eb;
+  padding-top: 10px !important;
+  font-weight: 700;
+  color: #003DA5;
+  font-size: 0.9rem;
+}
+
+/* ── Objetivos ───────────────────────────────────────────────────── */
+.pe-obj-row {
+  display: grid;
+  grid-template-columns: 28px 1fr 130px;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.pe-obj-num {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #9ca3af;
+  text-align: center;
+}
+.pe-obj-row input[type=text],
+.pe-obj-row input[type=number] {
+  width: 100%;
+  padding: 7px 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 7px;
+  font-size: 0.84rem;
+  background: #f9fafb;
+  color: #111827;
+  transition: border-color .15s;
+}
+.pe-obj-row input[type=number] { text-align: right; }
+.pe-obj-row input:focus {
+  outline: none;
+  border-color: #003DA5;
+  background: #fff;
+}
+.pe-obj-total {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+  font-size: 0.85rem;
+  color: #6b7280;
+}
+.pe-obj-total strong { color: #003DA5; font-size: 1rem; }
+
+/* ── Config del plan ─────────────────────────────────────────────── */
+.pe-config-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+}
+.pe-config-item label {
+  display: block;
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin-bottom: 4px;
+}
+.pe-config-item input {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 7px;
+  font-size: 0.9rem;
+  background: #f9fafb;
+  color: #111827;
+  text-align: right;
+  transition: border-color .15s;
+}
+.pe-config-item input:focus {
+  outline: none;
+  border-color: #003DA5;
+  background: #fff;
+}
+
+/* ── KPI chips de actividad semanal ──────────────────────────────── */
+.pe-kpi-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.pe-kpi-chip {
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 14px 12px;
+  text-align: center;
+}
+.pe-kpi-num {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #003DA5;
+  line-height: 1;
+}
+.pe-kpi-lbl {
+  font-size: 0.72rem;
+  color: #6b7280;
+  margin-top: 4px;
+}
+
+/* ── Barras de progreso ──────────────────────────────────────────── */
+.pe-progress-section { margin-bottom: 20px; }
+.pe-progress-item { margin-bottom: 14px; }
+.pe-progress-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.82rem;
+  color: #374151;
+  margin-bottom: 5px;
+}
+.pe-progress-header strong {
+  color: #111827;
+  font-weight: 600;
+}
+.pe-progress-track {
+  background: #f3f4f6;
+  border-radius: 4px;
+  height: 9px;
+  overflow: hidden;
+}
+.pe-progress-fill {
+  height: 9px;
+  border-radius: 4px;
+  background: #003DA5;
+  transition: width .4s ease;
+}
+.pe-progress-fill.green { background: #16a34a; }
+.pe-progress-fill.amber { background: #d97706; }
+
+/* ── Tabla distribución mensual ──────────────────────────────────── */
+.pe-dist-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+.pe-dist-table th {
+  text-align: left;
+  padding: 6px 8px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  border-bottom: 1px solid #e5e7eb;
+}
+.pe-dist-mes  { color: #374151; padding: 7px 8px; }
+.pe-dist-pct  { color: #6b7280; padding: 7px 8px; text-align: center; }
+.pe-dist-bar-cell { padding: 7px 8px; width: 180px; }
+.pe-dist-bar-wrap { background: #f3f4f6; border-radius: 3px; height: 7px; }
+.pe-dist-bar-fill { height: 7px; border-radius: 3px; background: #003DA5; }
+.pe-dist-usd  { text-align: right; font-weight: 600; color: #111827; padding: 7px 8px; }
+.pe-dist-table tr:hover td { background: #f8fafc; }
+
+/* ── Tracking mensual ────────────────────────────────────────────── */
+.pe-track-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+  table-layout: fixed;
+}
+.pe-track-table th {
+  text-align: center;
+  padding: 6px 3px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #6b7280;
+  text-transform: uppercase;
+  border-bottom: 1px solid #e5e7eb;
+}
+.pe-track-table th:first-child { text-align: left; padding-left: 6px; }
+.pe-track-table td { padding: 5px 3px; }
+.pe-track-table td:first-child {
+  font-size: 0.78rem;
+  color: #374151;
+  padding-left: 6px;
+}
+.pe-track-table input[type=number] {
+  width: 100%;
+  padding: 4px 2px;
+  border: 1px solid #e5e7eb;
+  border-radius: 5px;
+  font-size: 0.8rem;
+  text-align: center;
+  background: #f9fafb;
+  color: #111827;
+}
+.pe-track-table input[type=number]:focus {
+  outline: none;
+  border-color: #003DA5;
+  background: #fff;
+}
+@media (max-width: 768px) {
+  .pe-track-table { font-size: 0.72rem; }
+  .pe-dist-bar-cell { display: none; }
+}
+
+/* ── Trimestres ──────────────────────────────────────────────────── */
+.pe-trim-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-top: 16px;
+}
+@media (max-width: 768px) {
+  .pe-trim-grid { grid-template-columns: repeat(2, 1fr); }
+}
+.pe-trim-card {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 12px;
+  text-align: center;
+}
+.pe-trim-label { font-size: 0.72rem; color: #6b7280; margin-bottom: 4px; }
+.pe-trim-pct   { font-size: 1.1rem; font-weight: 700; color: #111827; }
+.pe-trim-usd   { font-size: 0.75rem; color: #6b7280; margin-top: 2px; }
+
+/* ── Anuales resumen ─────────────────────────────────────────────── */
+.pe-anual-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid #f3f4f6;
+  font-size: 0.88rem;
+}
+.pe-anual-row:last-child { border-bottom: none; }
+.pe-anual-label { color: #6b7280; }
+.pe-anual-value { font-weight: 600; color: #111827; }
+.pe-anual-row.pe-total .pe-anual-label { color: #111827; font-weight: 700; font-size: 0.95rem; }
+.pe-anual-row.pe-total .pe-anual-value { color: #003DA5; font-size: 1.1rem; }
+
+/* ── Botón guardar ───────────────────────────────────────────────── */
+.pe-save-bar {
+  position: sticky;
+  bottom: 0;
+  background: rgba(255,255,255,.95);
+  backdrop-filter: blur(6px);
+  border-top: 1px solid #e5e7eb;
+  padding: 12px 0;
+  display: flex;
+  justify-content: flex-end;
+  z-index: 10;
+}
+.pe-save-bar .btn-pe-save {
+  background: #003DA5;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 28px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .15s, transform .1s;
+}
+.pe-save-bar .btn-pe-save:hover  { background: #002d7a; }
+.pe-save-bar .btn-pe-save:active { transform: scale(.97); }
+.pe-save-bar .btn-pe-save:disabled { opacity: .6; cursor: not-allowed; }
+
+/* ── Vista broker: mini-card ─────────────────────────────────────── */
+.pe-broker-mini {
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 14px 16px;
+}
+.pe-broker-mini-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  margin-bottom: 10px;
+}
+.pe-broker-stat-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.82rem;
+  padding: 4px 0;
+  border-bottom: 1px solid #f3f4f6;
+}
+.pe-broker-stat-row:last-child { border-bottom: none; }
+.pe-broker-stat-label { color: #6b7280; }
+.pe-broker-stat-val   { font-weight: 600; color: #111827; }
+.pe-broker-stat-val.blue { color: #003DA5; }
+.pe-broker-mini-prog  { margin-top: 10px; }
+
+/* ══════════════════════════════════════════════════════════════════
+   MOBILE — Plan Estratégico
+   ══════════════════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+
+  /* Card base más compacta */
+  .pe-card { padding: 16px 14px; margin-bottom: 14px; }
+  .pe-card-title { font-size: 0.72rem; margin-bottom: 12px; }
+
+  /* Resumen ejecutivo: 2 columnas */
+  .pe-summary-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .pe-summary-card { padding: 10px 12px; }
+  .pe-summary-value { font-size: 1.05rem; }
+  .pe-summary-label { font-size: 0.68rem; }
+  .pe-summary-sub   { font-size: 0.62rem; }
+
+  /* KPI chips: 2x2 */
+  .pe-kpi-row {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .pe-kpi-chip { padding: 10px 8px; }
+  .pe-kpi-num  { font-size: 1.6rem; }
+  .pe-kpi-lbl  { font-size: 0.68rem; }
+
+  /* Config: una columna */
+  .pe-config-grid { grid-template-columns: 1fr; gap: 8px; }
+  .pe-config-item input { font-size: 0.85rem; padding: 7px 10px; }
+
+  /* Tabla de gastos: label arriba, input abajo */
+  .pe-form-table tr { display: flex; flex-direction: column; padding: 4px 0; border-bottom: 1px solid #f3f4f6; }
+  .pe-form-table tr td:first-child { width: 100%; font-size: 0.78rem; color: #6b7280; padding-bottom: 2px; }
+  .pe-form-table tr td:last-child  { width: 100%; }
+  .pe-form-table input[type=number] { font-size: 0.85rem; padding: 6px 10px; }
+  .pe-total-row { border-top: 2px solid #e5e7eb !important; }
+  .pe-total-row td { display: flex; justify-content: space-between; flex-direction: row !important; padding-top: 8px !important; }
+
+  /* Objetivos: sin número lateral en mobile */
+  .pe-obj-row { grid-template-columns: 1fr 90px; }
+  .pe-obj-num { display: none; }
+  .pe-obj-row input[type=text]   { font-size: 0.82rem; padding: 6px 8px; }
+  .pe-obj-row input[type=number] { font-size: 0.82rem; padding: 6px 8px; }
+
+  /* Resumen anual */
+  .pe-anual-row { font-size: 0.82rem; padding: 8px 0; }
+
+  /* Progreso */
+  .pe-progress-header { font-size: 0.78rem; }
+
+  /* Tracking table: más compacta */
+  .pe-track-table { font-size: 0.68rem; }
+  .pe-track-table th { padding: 4px 2px; }
+  .pe-track-table td { padding: 3px 1px; }
+  .pe-track-table input[type=number] { padding: 3px 1px; font-size: 0.7rem; }
+
+  /* Trimestres: 2x2 */
+  .pe-trim-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .pe-trim-card { padding: 10px 8px; }
+  .pe-trim-pct  { font-size: 0.95rem; }
+
+  /* Botón guardar */
+  .pe-save-bar { padding: 10px 0; }
+  .pe-save-bar .btn-pe-save { width: 100%; padding: 12px; font-size: 0.9rem; }
+}

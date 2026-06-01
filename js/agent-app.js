@@ -11,6 +11,7 @@ let activeSection = 'semana';
 let activeMetricTab = 'auto';
 let monthlyChartInstance = null;
 let activeMonthlyMetric = 'reunionesVerdes';
+let planTargets = null;  // Metas del plan estratégico
 
 // ── Punto de entrada llamado por requireAuth() ────────────────────────────────
 
@@ -29,6 +30,22 @@ async function initApp(user, profile) {
   showLoading(true);
   await loadWeekView(currentWeekNum);
   showLoading(false);
+
+  // Plan estratégico: solo si el broker lo habilitó para este agente
+  if (profile.planEnabled) {
+    // Mostrar nav item del plan
+    document.querySelectorAll('.nav-plan').forEach(el => el.style.display = 'flex');
+    document.querySelectorAll('.bnav-plan').forEach(el => el.style.display = 'flex');
+    // Cargar metas
+    getPlanTargets(user.uid).then(targets => {
+      planTargets = targets;
+      if (targets?.tieneplan) renderWeekTotals();
+    });
+  } else {
+    // Ocultar sección plan
+    document.querySelectorAll('.nav-plan').forEach(el => el.style.display = 'none');
+    document.querySelectorAll('.bnav-plan').forEach(el => el.style.display = 'none');
+  }
 
   initVoice();
   initMobileMenu();
@@ -243,11 +260,67 @@ function renderWeekTotals() {
     METRICS_KEYS.forEach(k => combined[k] = (combined[k] || 0) + (parseInt(data[k]) || 0));
   });
 
-  // Chips KPI (incluye captaciones)
+  // Chips KPI con indicador de progreso vs. plan
   [...FUNNEL.map(f => f.key), 'llamados', 'nuevosContactos', 'captaciones'].forEach(key => {
-    const el = document.getElementById('kpi-' + key);
-    if (el) el.textContent = combined[key] || 0;
+    const numEl = document.getElementById('kpi-' + key);
+    if (!numEl) return;
+    const val = combined[key] || 0;
+    numEl.textContent = val;
+
+    // Indicador de meta si hay plan cargado
+    const chip = numEl.closest('.week-kpi-chip');
+    if (!chip) return;
+
+    // Quitar meta anterior si existía
+    chip.querySelector('.kpi-meta')?.remove();
+
+    const target = planTargets?.[key];
+    if (!target || !planTargets?.tieneplan) return;
+
+    const pct   = Math.round(val / target * 100);
+    const color = pct >= 100 ? '#15803d' : pct >= 50 ? '#d97706' : '#CC0000';
+    const icon  = pct >= 100 ? '✓' : pct >= 50 ? '◑' : '○';
+
+    const metaEl = document.createElement('div');
+    metaEl.className = 'kpi-meta';
+    metaEl.style.cssText = `font-size:0.6rem;color:${color};font-weight:700;margin-top:1px;letter-spacing:.02em`;
+    metaEl.innerHTML = `<span style="color:${color}">${icon} ${val}/${target}</span>`;
+    chip.appendChild(metaEl);
   });
+
+  // En mobile: barra de progreso general en el header de la tarjeta
+  renderMobileWeekProgress(combined);
+}
+
+function renderMobileWeekProgress(combined) {
+  const header = document.querySelector('.mobile-day-card-header');
+  if (!header || !planTargets?.tieneplan) return;
+
+  // Quitar barra anterior
+  header.querySelector('.plan-progress-bar-wrap')?.remove();
+
+  const claves = ['reunionesVerdes', 'captaciones', 'reservas'];
+  const totPlan = claves.reduce((s, k) => s + (planTargets[k] || 0), 0);
+  const totReal = claves.reduce((s, k) => s + (combined[k]  || 0), 0);
+  if (totPlan === 0) return;
+
+  const pct   = Math.min(Math.round(totReal / totPlan * 100), 100);
+  const color = pct >= 100 ? '#15803d' : pct >= 50 ? '#d97706' : '#CC0000';
+
+  const wrap = document.createElement('div');
+  wrap.className = 'plan-progress-bar-wrap';
+  wrap.style.cssText = 'width:100%;padding:6px 18px 10px;';
+  wrap.innerHTML = `
+    <div style="display:flex;justify-content:space-between;font-size:0.68rem;color:rgba(255,255,255,.7);margin-bottom:4px">
+      <span>📋 Progreso semanal vs. plan</span>
+      <span style="color:${pct>=100?'#86efac':pct>=50?'#fcd34d':'#fca5a5'};font-weight:700">${pct}%</span>
+    </div>
+    <div style="background:rgba(255,255,255,.2);border-radius:4px;height:6px;overflow:hidden">
+      <div style="width:${pct}%;height:6px;border-radius:4px;background:${color};transition:width .4s ease"></div>
+    </div>`;
+
+  // Insertar al final del header
+  header.appendChild(wrap);
 }
 
 function updateSaveButton() {
