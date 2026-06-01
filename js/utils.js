@@ -15,8 +15,8 @@ const METRICS = [
   { key: 'popBy',           label: 'Pop By',              short: 'Pop By',   color: '#374151', bg: '#f9fafb', category: 'manual' },
   { key: 'eventos',         label: 'Eventos',             short: 'Eventos',  color: '#374151', bg: '#f9fafb', category: 'manual' },
   { key: 'redes',           label: 'Redes Sociales',      short: 'Redes',    color: '#374151', bg: '#f9fafb', category: 'manual' },
-  { key: 'nuevosContactos', label: 'Nuevos Contactos',    short: 'Nuevos',   color: '#374151', bg: '#f9fafb', category: 'manual' },
-  { key: 'captaciones',     label: 'Captaciones',         short: 'Captac.',  color: '#374151', bg: '#f9fafb', category: 'manual' },
+  { key: 'nuevosContactos', label: 'Nuevos Contactos',    short: 'Nuevos',   color: '#0891b2', bg: '#ecfeff', category: 'auto'   },
+  { key: 'captaciones',     label: 'Captaciones',         short: 'Captac.',  color: '#1d4ed8', bg: '#eff6ff', category: 'auto'   },
 ];
 
 const METRICS_AUTO   = METRICS.filter(m => m.category === 'auto');

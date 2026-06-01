@@ -79,7 +79,7 @@ const SINONIMOS = {
   ],
   captaciones: [
     'captacion', 'captación', 'captaciones', 'capté', 'capte',
-    'propiedad captada', 'propiedades captadas', 'listing', 'listings',
+    'propiedad captada', 'propiedades captadas',
     'captamos', 'nueva captacion', 'nueva captación', 'exclusiva',
   ],
 };
@@ -88,21 +88,22 @@ const SINONIMOS = {
 
 function parsearTexto(texto) {
   const resultado = emptyDay();
-  const textoNorm = normalizar(texto);
-  const tokens    = tokenizar(textoNorm);
+  const textoNorm = ' ' + normalizar(texto) + ' '; // espacios para bordes
 
   METRICS_KEYS.forEach(metrica => {
     const sinonimos = SINONIMOS[metrica] || [];
     sinonimos.forEach(sin => {
       const sinNorm = normalizar(sin);
-      const idx     = textoNorm.indexOf(sinNorm);
+      // Busca con límite de palabra: espacio o inicio/fin antes y después
+      const pattern = ' ' + sinNorm + ' ';
+      const idx     = textoNorm.indexOf(pattern);
       if (idx === -1) return;
 
-      const cantidad = extraerCantidad(textoNorm, idx, sinNorm.length);
+      // idx+1 porque agregamos espacio al principio
+      const cantidad = extraerCantidad(textoNorm, idx + 1, sinNorm.length);
       if (cantidad > 0) {
         resultado[metrica] = Math.max(resultado[metrica] || 0, cantidad);
       } else {
-        // Si encontró la palabra pero sin número → asumir 1
         resultado[metrica] = Math.max(resultado[metrica] || 0, 1);
       }
     });

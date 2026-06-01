@@ -243,9 +243,10 @@ function renderWeekTotals() {
     METRICS_KEYS.forEach(k => combined[k] = (combined[k] || 0) + (parseInt(data[k]) || 0));
   });
 
-  FUNNEL.forEach(f => {
-    const el = document.getElementById('kpi-' + f.key);
-    if (el) el.textContent = combined[f.key] || 0;
+  // Chips KPI (incluye captaciones)
+  [...FUNNEL.map(f => f.key), 'llamados', 'nuevosContactos', 'captaciones'].forEach(key => {
+    const el = document.getElementById('kpi-' + key);
+    if (el) el.textContent = combined[key] || 0;
   });
 }
 

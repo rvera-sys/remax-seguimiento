@@ -154,6 +154,16 @@
           <span class="week-kpi-num" id="kpi-llamados">0</span>
           <span class="week-kpi-lbl">Llamados</span>
         </div>
+        <div class="week-kpi-chip">
+          <span class="week-kpi-dot" style="background:#0891b2"></span>
+          <span class="week-kpi-num" id="kpi-nuevosContactos">0</span>
+          <span class="week-kpi-lbl">Nuevos</span>
+        </div>
+        <div class="week-kpi-chip">
+          <span class="week-kpi-dot" style="background:#1d4ed8"></span>
+          <span class="week-kpi-num" id="kpi-captaciones">0</span>
+          <span class="week-kpi-lbl">Captaciones</span>
+        </div>
       </div>
 
       <!-- ── VISTA DESKTOP: tabla completa ──────────────────── -->
@@ -182,11 +192,7 @@
         <div id="mobile-day-card"></div>
       </div>
 
-      <!-- Barra de guardado sticky (mobile) -->
-      <div class="mobile-save-bar" id="mobile-save-bar">
-        <div class="mobile-day-summary" id="mobile-save-summary">Sin cambios</div>
-        <button class="btn btn-primary btn-sm" id="btn-save-mobile">Guardar</button>
-      </div>
+      <!-- Barra sticky eliminada — reemplazada por globo azul en bottom nav -->
 
     </section>
 
@@ -355,15 +361,17 @@
     <div class="bottom-nav-item" data-section="mensual" onclick="showSection('mensual');setBottomNav(this)">
       <span class="bnav-icon">📊</span>Mensual
     </div>
-    <div class="bnav-save-wrap" id="bnav-save-wrap" style="display:none">
-      <button class="bnav-save-btn" id="btn-save-mobile" title="Guardar cambios">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="20 6 9 17 4 12"/>
-        </svg>
-      </button>
-      <div class="bottom-nav-item" data-section="anual" onclick="showSection('anual');setBottomNav(this)">
-        <span class="bnav-icon">📆</span>Anual
+    <!-- Tab ANUAL siempre visible -->
+    <div class="bottom-nav-item" data-section="anual" onclick="showSection('anual');setBottomNav(this)" style="position:relative">
+      <!-- Globo guardar: aparece encima del tab cuando hay cambios -->
+      <div class="bnav-save-wrap" id="bnav-save-wrap" style="display:none;position:absolute;top:-46px;left:50%;transform:translateX(-50%)">
+        <button class="bnav-save-btn" id="btn-save-mobile" title="Guardar cambios" onclick="event.stopPropagation()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+        </button>
       </div>
+      <span class="bnav-icon">📆</span>Anual
     </div>
     <div class="bottom-nav-item" data-section="tablero" onclick="showSection('tablero');setBottomNav(this)">
       <span class="bnav-icon">🏆</span>Tablero
