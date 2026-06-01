@@ -605,9 +605,8 @@ input, button, select, textarea { font-family: var(--font); }
 .bottom-nav-item .bnav-icon   { font-size: 1.35rem; }
 /* Globo guardar — flota sobre el tab ANUAL */
 .bnav-save-wrap {
-  pointer-events: none;
+  pointer-events: auto;
 }
-.bnav-save-wrap.show { pointer-events: auto; }
 
 .bnav-save-btn {
   width: 38px; height: 38px;
