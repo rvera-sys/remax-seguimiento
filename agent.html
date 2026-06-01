@@ -63,6 +63,41 @@
         </div>
       </div>
 
+      <!-- ── PANEL DE VOZ ─────────────────────────────────────── -->
+      <div class="voice-panel">
+        <button class="mic-btn mic-idle" id="mic-btn" title="Hablar para cargar métricas del día">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2a3 3 0 0 1 3 3v7a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3z"/>
+            <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+            <line x1="12" y1="19" x2="12" y2="22"/>
+            <line x1="8"  y1="22" x2="16" y2="22"/>
+          </svg>
+        </button>
+        <div class="voice-info">
+          <div class="voice-title">Cargá tu día con la voz</div>
+          <div class="voice-desc">
+            Presioná el micrófono y contá qué hiciste hoy.<br>
+            <em>Ej: "Tuve 2 reuniones verdes, hice 5 llamados y cerré una venta"</em>
+          </div>
+          <div class="mic-status" id="mic-status">
+            <span class="mic-dot"></span>
+            Presioná para hablar
+          </div>
+          <div class="voice-transcript-box" id="voice-transcript"></div>
+        </div>
+      </div>
+
+      <!-- Preview de métricas detectadas -->
+      <div class="voice-result-panel" id="voice-result-panel">
+        <div class="voice-result-title">✅ Esto es lo que entendí</div>
+        <div class="voice-result-text" id="voice-result-text"></div>
+        <div class="detected-metrics" id="detected-metrics"></div>
+        <div class="voice-result-actions">
+          <button class="btn btn-primary" id="btn-apply-voice">Cargar en el día de hoy</button>
+          <button class="btn btn-ghost"   id="btn-discard-voice">Descartar</button>
+        </div>
+      </div>
+
       <!-- Navegador de semana -->
       <div class="week-nav">
         <button class="week-nav-btn" id="btn-prev-week" title="Semana anterior">&#8592;</button>
@@ -240,6 +275,8 @@
 <script src="js/db.js"></script>
 <script src="js/auth.js"></script>
 <script src="js/charts.js"></script>
+<script src="js/parser.js"></script>
+<script src="js/voice.js"></script>
 <script src="js/agent-app.js"></script>
 
 <script>

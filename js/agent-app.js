@@ -30,6 +30,7 @@ async function initApp(user, profile) {
   await loadWeekView(currentWeekNum);
   showLoading(false);
 
+  initVoice();
   loadBackgroundData();
 }
 
@@ -391,6 +392,108 @@ function renderKpiCards(totals) {
       </tbody>
     </table>
   `;
+}
+
+// ── Módulo de voz ────────────────────────────────────────────────────────────
+
+function initVoice() {
+  const micBtn = document.getElementById('mic-btn');
+  if (!micBtn) return;
+
+  micBtn.addEventListener('click', function() {
+    if (isListening) {
+      detenerVoz();
+      return;
+    }
+
+    // Limpiar transcript y resultado anterior
+    const transcriptBox = document.getElementById('voice-transcript');
+    if (transcriptBox) { transcriptBox.textContent = ''; transcriptBox.classList.add('show'); }
+    ocultarResultadoVoz();
+
+    const ok = iniciarVoz(
+      // onResult: se llama cuando el usuario para de hablar
+      function(texto) {
+        document.getElementById('voice-transcript').classList.remove('show');
+        mostrarResultadoVoz(texto);
+      },
+      // onError
+      function(msg) {
+        showToast(msg, 'error');
+        document.getElementById('voice-transcript').classList.remove('show');
+      }
+    );
+
+    if (!ok) showToast('Reconocimiento de voz no disponible. Usá Chrome o Edge.', 'error');
+  });
+
+  document.getElementById('btn-apply-voice')?.addEventListener('click', aplicarVozAlDia);
+  document.getElementById('btn-discard-voice')?.addEventListener('click', ocultarResultadoVoz);
+}
+
+function mostrarResultadoVoz(texto) {
+  const resultado  = parsearTexto(texto);
+  const resumen    = generarResumenParseo(resultado);
+  const panel      = document.getElementById('voice-result-panel');
+  const textEl     = document.getElementById('voice-result-text');
+  const chipsEl    = document.getElementById('detected-metrics');
+
+  if (!panel) return;
+
+  textEl.textContent = '"' + texto + '"';
+
+  if (resumen.length === 0) {
+    chipsEl.innerHTML = '<span class="voice-nothing">No detecté métricas. Intentá ser más específico, ej: "hice 2 llamados y tuve 1 reunión verde".</span>';
+    panel.classList.add('show');
+    document.getElementById('btn-apply-voice').style.display = 'none';
+    return;
+  }
+
+  chipsEl.innerHTML = resumen.map(item => `
+    <div class="detected-chip">
+      <span class="detected-chip-dot" style="background:${item.color}"></span>
+      <span class="detected-chip-val" style="color:${item.color}">${item.val}</span>
+      <span>${escapeHtml(item.label)}</span>
+    </div>
+  `).join('');
+
+  document.getElementById('btn-apply-voice').style.display = 'inline-flex';
+  panel.classList.add('show');
+
+  // Guardar resultado para aplicar
+  panel.dataset.resultado = JSON.stringify(resultado);
+}
+
+function aplicarVozAlDia() {
+  const panel = document.getElementById('voice-result-panel');
+  if (!panel || !panel.dataset.resultado) return;
+
+  const resultado = JSON.parse(panel.dataset.resultado);
+  const hoyKey    = dateToKey(new Date());
+
+  // Aplicar al día de hoy en pendingChanges
+  if (!pendingChanges[hoyKey]) pendingChanges[hoyKey] = {};
+  METRICS_KEYS.forEach(k => {
+    if (resultado[k] && resultado[k] > 0) {
+      pendingChanges[hoyKey][k] = resultado[k];
+    }
+  });
+
+  // Refrescar tabla y guardar automáticamente
+  renderWeekTable();
+  renderWeekTotals();
+  updateSaveButton();
+  ocultarResultadoVoz();
+
+  // Auto-guardar
+  saveWeek().then(() => {
+    showToast('¡Métricas del día cargadas y guardadas! 🎉');
+  });
+}
+
+function ocultarResultadoVoz() {
+  const panel = document.getElementById('voice-result-panel');
+  if (panel) panel.classList.remove('show');
 }
 
 // ── Carga de datos de fondo ───────────────────────────────────────────────────
