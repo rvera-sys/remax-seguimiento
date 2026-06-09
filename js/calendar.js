@@ -204,3 +204,12 @@ function restoreCalendarSession() {
   }
   return false;
 }
+
+function showCalModal() {
+  document.getElementById('cal-modal').style.display = 'flex';
+  renderCalendarPanel();
+}
+
+function closeCalModal() {
+  document.getElementById('cal-modal').style.display = 'none';
+}

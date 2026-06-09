@@ -56,7 +56,7 @@
     </div>
     <div class="sidebar-section">
       <div class="sidebar-label">Integraciones</div>
-      <div class="nav-item" data-section="calendar">
+      <div class="nav-item" onclick="showCalModal()" style="cursor:pointer">
         <span class="nav-icon">🔗</span> Google Calendar
         <span id="cal-status-dot" class="nav-badge" style="display:none;background:var(--green);width:8px;height:8px;padding:0;border-radius:50%;margin-left:auto"></span>
       </div>
@@ -79,7 +79,12 @@
 
       <div class="section-header">
         <div>
-          <div class="section-title">Carga semanal</div>
+          <div class="section-title">
+            Carga semanal
+            <button class="btn btn-sm btn-outline" style="margin-left:10px;font-size:0.75rem;vertical-align:middle" onclick="showCalModal()" title="Sincronizar con Google Calendar">
+              📅 Sinc.
+            </button>
+          </div>
           <div class="section-subtitle">Registrá tus actividades día a día</div>
         </div>
       </div>
@@ -524,16 +529,16 @@
 </section>
 <!-- ══ FIN SECCIÓN PLAN ══ -->
 
-<!-- ══ SECCIÓN GOOGLE CALENDAR ══ -->
-<section id="section-calendar" class="main-section">
-  <div class="section-header">
-    <div>
-      <div class="section-title">🔗 Google Calendar</div>
-      <div class="section-subtitle">Sincronizá tus actividades desde el calendario</div>
+<!-- ══ MODAL GOOGLE CALENDAR ══ -->
+<div id="cal-modal" class="modal-overlay" style="display:none" onclick="if(event.target===this){closeCalModal()}">
+  <div class="modal-dialog">
+    <div class="modal-header">
+      <div class="modal-title">📅 Google Calendar</div>
+      <button class="modal-close" onclick="closeCalModal()">✕</button>
     </div>
+    <div class="modal-body" id="calendar-panel"></div>
   </div>
-  <div id="calendar-panel"></div>
-</section>
+</div>
 
 <!-- Bottom Navigation (mobile) -->
 <nav class="bottom-nav">

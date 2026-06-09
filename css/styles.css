@@ -1772,3 +1772,47 @@ tr:hover td { background: var(--blue-light); }
   th, td { padding: 4px 3px; font-size: 0.7rem; }
   .metric-input { width: 30px; height: 26px; font-size: 0.7rem; }
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+   GOOGLE CALENDAR MODAL
+   ═══════════════════════════════════════════════════════════════════ */
+.modal-overlay {
+  position: fixed; top:0; left:0; right:0; bottom:0;
+  background: rgba(0,0,0,0.5);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.modal-dialog {
+  background: var(--white);
+  border-radius: var(--radius);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  width: 100%;
+  max-width: 520px;
+  max-height: 85vh;
+  overflow-y: auto;
+}
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 20px 14px;
+  border-bottom: 1px solid var(--gray-200);
+}
+.modal-title {
+  font-weight: 700;
+  font-size: 1.05rem;
+}
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 1.3rem;
+  cursor: pointer;
+  color: var(--gray-500);
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+.modal-close:hover { background: var(--gray-100); }
+.modal-body { padding: 20px; }

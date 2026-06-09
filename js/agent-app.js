@@ -88,7 +88,6 @@ function showSection(section) {
   if (section === 'mensual') loadMonthlyView();
   if (section === 'anual')   loadAnualView();
   if (section === 'tablero') loadTableroView();
-  if (section === 'calendar') renderCalendarPanel();
   if (section === 'plan' && typeof initPlanEstrategico === 'function') {
     // Patch render para campos extra
     if (!window._pePatchApplied) {
