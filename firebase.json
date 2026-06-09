@@ -1,1 +1,1 @@
-{"hosting":{"public":".","ignore":["firebase.json","**/.*","**/node_modules/**"]}}
+{"hosting":{"site":"seguimiento-agentes","public":".","ignore":["firebase.json","**/.*","**/node_modules/**"]}}
