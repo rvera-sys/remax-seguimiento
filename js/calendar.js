@@ -1,20 +1,54 @@
 const CAL_SCOPE = 'https://www.googleapis.com/auth/calendar.readonly';
 var calAccessToken = null;
+var calTokenClient = null;
+var calCodeClient = null;
 
 function ensureCalTokenClient() {
   if (typeof google === 'undefined' || !google.accounts || !google.accounts.oauth2) return null;
   if (!GOOGLE_CALENDAR_CLIENT_ID) return null;
-  return google.accounts.oauth2.initTokenClient({
-    client_id: GOOGLE_CALENDAR_CLIENT_ID,
-    scope: CAL_SCOPE,
-    callback: function() {},
+  if (!calTokenClient) {
+    calTokenClient = google.accounts.oauth2.initTokenClient({
+      client_id: GOOGLE_CALENDAR_CLIENT_ID,
+      scope: CAL_SCOPE,
+      callback: function() {},
+    });
+  }
+  return calTokenClient;
+}
+
+function ensureCalCodeClient() {
+  if (typeof google === 'undefined' || !google.accounts || !google.accounts.oauth2) return null;
+  if (!GOOGLE_CALENDAR_CLIENT_ID) return null;
+  if (!calCodeClient) {
+    calCodeClient = google.accounts.oauth2.initCodeClient({
+      client_id: GOOGLE_CALENDAR_CLIENT_ID,
+      scope: CAL_SCOPE,
+      access_type: 'offline',
+      prompt: 'consent',
+      ux_mode: 'popup',
+      callback: function() {},
+    });
+  }
+  return calCodeClient;
+}
+
+function requestCalendarAuthCode() {
+  return new Promise(function(resolve, reject) {
+    var cc = ensureCalCodeClient();
+    if (!cc) { reject('Calendar no disponible.'); return; }
+    cc.callback = function(resp) {
+      if (resp.error) { reject(resp); return; }
+      if (resp.code) resolve(resp.code);
+      else reject('No se recibió código');
+    };
+    cc.requestCode();
   });
 }
 
-function requestCalendarAuth() {
+function requestCalendarToken() {
   return new Promise(function(resolve, reject) {
     var tc = ensureCalTokenClient();
-    if (!tc) { reject('Calendar no disponible. Verificá que el Client ID esté configurado.'); return; }
+    if (!tc) { reject('Calendar no disponible.'); return; }
     tc.callback = function(resp) {
       if (resp.error) { reject(resp); return; }
       calAccessToken = resp.access_token;
@@ -95,10 +129,32 @@ function renderCalendarPanel() {
 
 async function handleCalendarConnect() {
   try {
-    var token = await requestCalendarAuth();
-    localStorage.setItem('cal_token', token);
-    localStorage.setItem('cal_expires', String(Date.now() + 3500000));
-    showToast('Google Calendar conectado', 'success');
+    var uid = (typeof currentUser !== 'undefined' && currentUser) ? currentUser.uid : null;
+    var code = await requestCalendarAuthCode();
+    var serverOk = false;
+
+    try {
+      var resp = await fetch('http://localhost:3457/api/calendar/exchange-code', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: code, uid: uid })
+      });
+      if (resp.ok) serverOk = true;
+    } catch (e) {}
+
+    if (serverOk) {
+      var data = await resp.json();
+      calAccessToken = data.access_token;
+      localStorage.setItem('cal_token', data.access_token);
+      localStorage.setItem('cal_expires', String(Date.now() + (data.expires_in || 3600) * 1000));
+      showToast('✅ Conectado + auto-sync 24/7 activado', 'success');
+    } else {
+      var token = await requestCalendarToken();
+      calAccessToken = token;
+      localStorage.setItem('cal_token', token);
+      localStorage.setItem('cal_expires', String(Date.now() + 3500000));
+      showToast('✅ Conectado (sin auto-sync. Iniciá sync-server con PM2)', 'info');
+    }
     renderCalendarPanel();
   } catch (e) {
     showToast('Error al conectar: ' + (e.error || e), 'error');
@@ -201,6 +257,19 @@ function restoreCalendarSession() {
   if (token && expires > Date.now()) {
     calAccessToken = token;
     return true;
+  }
+  if (typeof currentUser !== 'undefined' && currentUser) {
+    fetch('http://localhost:3457/api/calendar/token?uid=' + currentUser.uid)
+      .then(function(r) { return r.json(); })
+      .then(function(d) {
+        if (d.access_token) {
+          calAccessToken = d.access_token;
+          localStorage.setItem('cal_token', d.access_token);
+          localStorage.setItem('cal_expires', String(Date.now() + (d.expires_in || 3600) * 1000));
+          if (typeof renderCalendarPanel === 'function') renderCalendarPanel();
+        }
+      })
+      .catch(function() {});
   }
   return false;
 }

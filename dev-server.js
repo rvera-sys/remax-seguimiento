@@ -1,0 +1,3 @@
+var http = require('http'), fs = require('fs'), path = require('path'), extMap = { html:'text/html;utf-8', css:'text/css', js:'application/javascript', png:'image/png', jpg:'image/jpeg', svg:'image/svg+xml', ico:'image/x-icon', json:'application/json' };
+var dir = __dirname;
+http.createServer(function(r,s) { var u=r.url==='/'?'/agent.html':r.url, f=path.join(dir,u); fs.readFile(f, function(e,d) { if (e) { s.writeHead(404); s.end('404'); return; } var ext = path.extname(f).slice(1); s.writeHead(200,{'Content-Type':extMap[ext]||'text/plain'}); s.end(d); }); }).listen(8080, function() { console.log('Dev server :8080'); });

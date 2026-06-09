@@ -1,0 +1,24 @@
+{
+  "name": "remax-seguimiento",
+  "version": "1.0.0",
+  "description": "App web para seguimiento de actividades comerciales. Agentes cargan sus métricas semanales, brokers supervisan el equipo y gestionan el acceso.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rvera-sys/remax-seguimiento.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/rvera-sys/remax-seguimiento/issues"
+  },
+  "homepage": "https://github.com/rvera-sys/remax-seguimiento#readme",
+  "dependencies": {
+    "firebase-admin": "^14.0.0"
+  }
+}

@@ -1,0 +1,5 @@
+node_modules/
+.firebase/
+client_secret.json
+service-account.json
+tokens.json
