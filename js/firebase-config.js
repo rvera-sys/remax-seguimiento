@@ -21,3 +21,11 @@ const db   = firebase.firestore();
 // Persistencia de sesión: se mantiene mientras el tab esté abierto.
 // Cambiar a firebase.auth.Auth.Persistence.LOCAL para que persista al cerrar el browser.
 auth.setPersistence(firebase.auth.Auth.Persistence.SESSION);
+
+// ═══════════════════════════════════════════════════════════════
+//  GOOGLE CALENDAR — Client ID
+//  Obtenelo en Google Cloud Console → APIs & Services → Credentials
+//  https://console.cloud.google.com/apis/credentials
+//  ⚠️ Agregá la URL de tu app en "Authorized JavaScript origins"
+// ═══════════════════════════════════════════════════════════════
+const GOOGLE_CALENDAR_CLIENT_ID = ''; // <-- PONÉ ACÁ TU CLIENT ID

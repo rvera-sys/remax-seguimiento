@@ -61,6 +61,13 @@
         <span class="nav-icon">🎯</span> Plan estratégico
       </div>
     </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Integraciones</div>
+      <div class="nav-item" data-section="calendar">
+        <span class="nav-icon">🔗</span> Google Calendar
+        <span id="cal-status-dot" class="nav-badge" style="display:none;background:var(--green);width:8px;height:8px;padding:0;border-radius:50%;margin-left:auto"></span>
+      </div>
+    </div>
   </nav>
   <div class="sidebar-overlay" id="sidebar-overlay"></div>
 
@@ -517,6 +524,17 @@
 </section>
 <!-- ══ FIN SECCIÓN PLAN ══ -->
 
+<!-- ══ SECCIÓN GOOGLE CALENDAR ══ -->
+<section id="section-calendar" class="main-section">
+  <div class="section-header">
+    <div>
+      <div class="section-title">🔗 Google Calendar</div>
+      <div class="section-subtitle">Sincronizá tus actividades desde el calendario</div>
+    </div>
+  </div>
+  <div id="calendar-panel"></div>
+</section>
+
 <!-- Bottom Navigation (mobile) -->
 <nav class="bottom-nav">
   <div class="bottom-nav-items">
@@ -574,7 +592,9 @@
 <script src="js/plan-estrategico.js"></script>
 <script src="js/parser.js"></script>
 <script src="js/voice.js"></script>
+<script src="https://accounts.google.com/gsi/client"></script>
 <script src="js/mobile.js"></script>
+<script src="js/calendar.js"></script>
 <script src="js/agent-app.js"></script>
 
 <script>

@@ -50,6 +50,12 @@ async function initApp(user, profile) {
   initVoice();
   initMobileMenu();
 
+  // Inicializar Google Calendar si hay Client ID configurado
+  if (window.GOOGLE_CALENDAR_CLIENT_ID) {
+    initCalendarLib(GOOGLE_CALENDAR_CLIENT_ID);
+    restoreCalendarSession();
+  }
+
   // Botón guardar mobile
   document.getElementById('btn-save-mobile')?.addEventListener('click', async () => {
     await saveWeek();
@@ -85,6 +91,7 @@ function showSection(section) {
   if (section === 'mensual') loadMonthlyView();
   if (section === 'anual')   loadAnualView();
   if (section === 'tablero') loadTableroView();
+  if (section === 'calendar') renderCalendarPanel();
   if (section === 'plan' && typeof initPlanEstrategico === 'function') {
     // Patch render para campos extra
     if (!window._pePatchApplied) {

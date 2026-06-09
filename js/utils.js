@@ -24,6 +24,24 @@ const METRICS_MANUAL = METRICS.filter(m => m.category === 'manual');
 const METRICS_KEYS   = METRICS.map(m => m.key);
 
 // El embudo de conversión (en orden de pipeline comercial)
+// Palabras clave para detectar métricas desde Google Calendar
+const KEYWORDS = {
+  reunionesVerdes: ['reunión verde', 'reunion verde', 'rev', 'rv'],
+  preListing:      ['pre-listing', 'prelisting', 'acm', 'listing'],
+  preBuying:       ['pre-buying', 'prebuying', 'pre compra', 'precompra'],
+  reservas:        ['reserva', 'oferta/res'],
+  cierresVenta:    ['cierre venta', 'cierra venta', 'cv'],
+  cierresCompra:   ['cierre compra', 'cierra compra', 'cc'],
+  llamados:        ['llamado', 'tel', 'wa', 'whatsapp', 'llamada'],
+  notasPersonales: ['nota', 'nota pers'],
+  eReport:         ['e-report', 'ereport', 'e report'],
+  popBy:           ['pop by', 'popby'],
+  eventos:         ['evento', 'event'],
+  redes:           ['redes', 'social', 'instagram', 'facebook'],
+  nuevosContactos: ['nuevo contacto', 'nuevo cont', 'nc'],
+  captaciones:     ['captación', 'captacion', 'capta'],
+};
+
 const FUNNEL = [
   { key: 'reunionesVerdes', label: 'Reuniones' },
   { key: 'preListing',      label: 'Pre-Listing' },
