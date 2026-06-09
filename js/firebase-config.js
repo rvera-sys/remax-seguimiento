@@ -28,4 +28,4 @@ auth.setPersistence(firebase.auth.Auth.Persistence.SESSION);
 //  https://console.cloud.google.com/apis/credentials
 //  ⚠️ Agregá la URL de tu app en "Authorized JavaScript origins"
 // ═══════════════════════════════════════════════════════════════
-const GOOGLE_CALENDAR_CLIENT_ID = ''; // <-- PONÉ ACÁ TU CLIENT ID
+const GOOGLE_CALENDAR_CLIENT_ID = '767853180983-di7ech579gvjsalq6kdalpvla7cpqjmv.apps.googleusercontent.com';
