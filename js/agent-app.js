@@ -50,11 +50,8 @@ async function initApp(user, profile) {
   initVoice();
   initMobileMenu();
 
-  // Inicializar Google Calendar si hay Client ID configurado
-  if (window.GOOGLE_CALENDAR_CLIENT_ID) {
-    initCalendarLib(GOOGLE_CALENDAR_CLIENT_ID);
-    restoreCalendarSession();
-  }
+  // Restaurar sesión de Google Calendar si existe
+  restoreCalendarSession();
 
   // Botón guardar mobile
   document.getElementById('btn-save-mobile')?.addEventListener('click', async () => {

@@ -1,27 +1,26 @@
 const CAL_SCOPE = 'https://www.googleapis.com/auth/calendar.readonly';
-let calTokenClient = null;
-let calAccessToken = null;
+var calAccessToken = null;
 
-function initCalendarLib(clientId) {
-  if (!clientId) return false;
-  if (typeof google === 'undefined' || !google.accounts) return false;
-  calTokenClient = google.accounts.oauth2.initTokenClient({
-    client_id: clientId,
+function ensureCalTokenClient() {
+  if (typeof google === 'undefined' || !google.accounts || !google.accounts.oauth2) return null;
+  if (!GOOGLE_CALENDAR_CLIENT_ID) return null;
+  return google.accounts.oauth2.initTokenClient({
+    client_id: GOOGLE_CALENDAR_CLIENT_ID,
     scope: CAL_SCOPE,
     callback: function() {},
   });
-  return true;
 }
 
 function requestCalendarAuth() {
   return new Promise(function(resolve, reject) {
-    if (!calTokenClient) { reject('Calendar not initialized'); return; }
-    calTokenClient.callback = function(resp) {
+    var tc = ensureCalTokenClient();
+    if (!tc) { reject('Calendar no disponible. Verificá que el Client ID esté configurado.'); return; }
+    tc.callback = function(resp) {
       if (resp.error) { reject(resp); return; }
       calAccessToken = resp.access_token;
       resolve(resp.access_token);
     };
-    calTokenClient.requestAccessToken({ prompt: '' });
+    tc.requestAccessToken({ prompt: '' });
   });
 }
 
