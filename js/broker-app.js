@@ -141,7 +141,7 @@ function renderPanelGeneral() {
   const cards = [
     { label: 'Agentes activos',      val: activeAgents.length,                      color: '#27ae60', icon: '👥' },
     { label: 'Reuniones Verdes',      val: combined.reunionesVerdes || 0,            color: '#27ae60', icon: '📅' },
-    { label: 'Pre-Listing',           val: combined.preListing || 0,                 color: '#003DA5', icon: '📋' },
+    { label: 'Presentación',          val: combined.preListing || 0,                 color: '#003DA5', icon: '📋' },
     { label: 'Cierres Totales 2026',  val: (combined.cierresVenta||0)+(combined.cierresCompra||0), color: '#CC0000', icon: '🏆' },
   ];
 

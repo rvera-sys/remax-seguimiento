@@ -528,7 +528,7 @@ async function loadTableroView() {
 function renderKpiCards(totals) {
   const kpis = [
     { id: 'kpi-reuniones-total', label: 'Reuniones Verdes', key: 'reunionesVerdes', color: '#27ae60' },
-    { id: 'kpi-prelisting-total', label: 'Pre-Listing', key: 'preListing', color: '#003DA5' },
+    { id: 'kpi-prelisting-total', label: 'Presentación', key: 'preListing', color: '#003DA5' },
     { id: 'kpi-reservas-total', label: 'Reservas', key: 'reservas', color: '#b7791f' },
     { id: 'kpi-cierres-total', label: 'Cierres Totales', keyFn: t => (t.cierresVenta||0)+(t.cierresCompra||0), color: '#CC0000' },
   ];
@@ -552,8 +552,8 @@ function renderKpiCards(totals) {
   if (!convContainer) return;
 
   const rows = [
-    { from: 'reunionesVerdes', to: 'preListing', label: 'Reuniones → Pre-Listing' },
-    { from: 'preListing', to: 'preBuying', label: 'Pre-Listing → Pre-Buying' },
+    { from: 'reunionesVerdes', to: 'preListing', label: 'Reuniones → Presentación' },
+    { from: 'preListing', to: 'preBuying', label: 'Presentación → Precompra' },
     { from: 'preBuying', to: 'reservas', label: 'Pre-Buying → Reservas' },
     { from: 'reservas', to: 'cierresVenta', label: 'Reservas → Cierre Venta' },
     { from: 'reunionesVerdes', to: 'cierresVenta', label: 'Reuniones → Cierre (global)' },

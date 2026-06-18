@@ -77,7 +77,7 @@ async function refreshToken(rt) {
 var KEYWORDS = {
   reunionesVerdes:  ['reunion verde','reunión verde','reunion comercial','reunión comercial','cita','entrevista'],
   visitas:          ['visita','mostrar','exhibicion','exhibición','recorrido','open house'],
-  prelistings:      ['pre-listing','prelisting','pre listing','presupuesto','presupuestar','tasacion','tasación'],
+  prelistings:      ['pre-listing','prelisting','pre listing','presupuesto','presupuestar','tasacion','tasación','presentacion','presentación'],
   listings:         ['listing','listado','toma de propiedad','mandato'],
   buyings:          ['buying','compra','adquisicion','adquisición'],
   ventas:           ['venta','cerrado','cerramos','vendido','vendida','se vende'],

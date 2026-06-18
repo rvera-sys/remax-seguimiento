@@ -3,8 +3,8 @@
 const METRICS = [
   // Automáticas (sincronizables desde Google Calendar)
   { key: 'reunionesVerdes', label: 'Reuniones Verdes',    short: 'R.Verdes', color: '#27ae60', bg: '#eafaf1', category: 'auto'   },
-  { key: 'preListing',      label: 'Pre-Listing / ACM',   short: 'Pre-List', color: '#003DA5', bg: '#e8eef7', category: 'auto'   },
-  { key: 'preBuying',       label: 'Pre-Buying',          short: 'Pre-Buy',  color: '#0055b3', bg: '#e8eef7', category: 'auto'   },
+  { key: 'preListing',      label: 'Presentación',        short: 'Present.', color: '#003DA5', bg: '#e8eef7', category: 'auto'   },
+  { key: 'preBuying',       label: 'Precompra',           short: 'Precompra',color: '#0055b3', bg: '#e8eef7', category: 'auto'   },
   { key: 'reservas',        label: 'Reservas',            short: 'Reservas', color: '#b7791f', bg: '#fefcbf', category: 'auto'   },
   { key: 'cierresVenta',    label: 'Cierres Venta',       short: 'C.Venta',  color: '#CC0000', bg: '#fff5f5', category: 'auto'   },
   { key: 'cierresCompra',   label: 'Cierres Compra',      short: 'C.Compra', color: '#9b0000', bg: '#fff5f5', category: 'auto'   },
@@ -27,7 +27,7 @@ const METRICS_KEYS   = METRICS.map(m => m.key);
 // Palabras clave para detectar métricas desde Google Calendar
 const KEYWORDS = {
   reunionesVerdes: ['reunión verde', 'reunion verde', 'rev', 'rv'],
-  preListing:      ['pre-listing', 'prelisting', 'acm', 'listing'],
+  preListing:      ['pre-listing', 'prelisting', 'acm', 'listing', 'presentación', 'presentacion'],
   preBuying:       ['pre-buying', 'prebuying', 'pre compra', 'precompra'],
   reservas:        ['reserva', 'oferta/res'],
   cierresVenta:    ['cierre venta', 'cierra venta', 'cv'],
@@ -44,8 +44,8 @@ const KEYWORDS = {
 
 const FUNNEL = [
   { key: 'reunionesVerdes', label: 'Reuniones' },
-  { key: 'preListing',      label: 'Pre-Listing' },
-  { key: 'preBuying',       label: 'Pre-Buying' },
+  { key: 'preListing',      label: 'Presentación' },
+  { key: 'preBuying',       label: 'Precompra' },
   { key: 'reservas',        label: 'Reservas' },
   { key: 'cierresVenta',    label: 'Cierres V.' },
   { key: 'cierresCompra',   label: 'Cierres C.' },

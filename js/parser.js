@@ -20,6 +20,7 @@ const SINONIMOS = {
     'pre-listing', 'prelisting', 'pre listing', 'acm', 'analisis comparativo',
     'análisis comparativo', 'tasacion', 'tasación', 'valuacion', 'valuación',
     'presentacion de captacion', 'presentación de captación',
+    'presentacion', 'presentación',
   ],
   preBuying: [
     'pre-buying', 'prebuying', 'pre buying', 'presentacion de compra',
